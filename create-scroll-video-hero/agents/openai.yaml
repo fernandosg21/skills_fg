@@ -1,0 +1,4 @@
+interface:
+  display_name: "Scroll Video Hero"
+  short_description: "Hero com video controlado pelo scroll"
+  default_prompt: "Use $create-scroll-video-hero to add a Memora-style scroll-controlled video hero to this project."

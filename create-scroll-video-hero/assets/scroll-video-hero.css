@@ -1,0 +1,253 @@
+:root {
+    --scroll-video-hero-bg: #f3f3f3;
+    --scroll-video-hero-bg-96: rgba(243, 243, 243, .96);
+    --scroll-video-hero-bg-62: rgba(243, 243, 243, .62);
+    --scroll-video-hero-bg-10: rgba(243, 243, 243, .1);
+    --scroll-video-hero-text: #233a57;
+    --scroll-video-hero-muted: #5d6e82;
+    --scroll-video-hero-line: #ded6ca;
+    --scroll-video-hero-accent: #b77a4a;
+    --scroll-video-hero-accent-strong: #9f663c;
+    --scroll-video-hero-height: 145vh;
+}
+
+.scroll-video-hero {
+    position: relative;
+    height: var(--scroll-video-hero-height);
+    background: var(--scroll-video-hero-bg);
+    --scroll-video-progress: 0;
+    overflow: hidden;
+    overflow: clip;
+}
+
+.scroll-video-hero__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 56px;
+}
+
+.scroll-video-hero__inner {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+}
+
+.scroll-video-hero__card {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    height: 600px;
+    min-height: 600px;
+    padding-top: 10px;
+}
+
+.scroll-video-hero__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(92deg,
+            var(--scroll-video-hero-bg) 0%,
+            var(--scroll-video-hero-bg-96) 34%,
+            var(--scroll-video-hero-bg-62) 52%,
+            var(--scroll-video-hero-bg-10) 72%,
+            transparent 100%);
+}
+
+.scroll-video-hero__content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 590px;
+    padding-top: 26px;
+}
+
+.scroll-video-hero__eyebrow,
+.scroll-video-hero__title,
+.scroll-video-hero__subtitle,
+.scroll-video-hero__actions {
+    opacity: 0;
+    transform: translateY(22px);
+    transition: opacity .75s ease, transform .75s ease;
+}
+
+.scroll-video-hero__content.is-visible .scroll-video-hero__eyebrow,
+.scroll-video-hero__content.is-visible .scroll-video-hero__title,
+.scroll-video-hero__content.is-visible .scroll-video-hero__subtitle,
+.scroll-video-hero__content.is-visible .scroll-video-hero__actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-video-hero__eyebrow {
+    margin: 0 0 18px;
+    color: var(--scroll-video-hero-accent);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+.scroll-video-hero__title {
+    margin: 0;
+    max-width: 10ch;
+    color: var(--scroll-video-hero-text);
+    font-size: clamp(2rem, 4vw, 3.7rem);
+    line-height: 1.04;
+    transition-delay: .08s;
+}
+
+.scroll-video-hero__subtitle {
+    max-width: 500px;
+    margin: 20px 0 0;
+    color: var(--scroll-video-hero-muted);
+    font-size: clamp(.9rem, 1.2vw, 1rem);
+    line-height: 1.7;
+    transition-delay: .18s;
+}
+
+.scroll-video-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 30px;
+    transition-delay: .3s;
+}
+
+.scroll-video-hero__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: 999px;
+    padding: 12px 24px;
+    color: var(--scroll-video-hero-text);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: background .2s ease, border-color .2s ease, color .2s ease;
+}
+
+.scroll-video-hero__button--primary {
+    background: var(--scroll-video-hero-accent);
+    color: #fff;
+}
+
+.scroll-video-hero__button--primary:hover {
+    background: var(--scroll-video-hero-accent-strong);
+}
+
+.scroll-video-hero__button--secondary {
+    border: 1px solid var(--scroll-video-hero-line);
+    background: #fff;
+}
+
+.scroll-video-hero__button--secondary:hover {
+    border-color: var(--scroll-video-hero-accent);
+}
+
+.scroll-video-hero__media {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    width: 132%;
+    max-width: 990px;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+}
+
+.scroll-video-hero__video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transform: translate3d(calc(var(--scroll-video-progress) * -6%), calc(var(--scroll-video-progress) * 20px), 0) scale(calc(1 + var(--scroll-video-progress) * .05));
+    transform-origin: right center;
+    transition: transform .08s linear;
+    will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scroll-video-hero__eyebrow,
+    .scroll-video-hero__title,
+    .scroll-video-hero__subtitle,
+    .scroll-video-hero__actions,
+    .scroll-video-hero__video {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --scroll-video-hero-height: 165vh;
+    }
+
+    .scroll-video-hero__sticky {
+        padding-top: 26px;
+    }
+
+    .scroll-video-hero__inner {
+        width: calc(100% - 28px);
+    }
+
+    .scroll-video-hero__card {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 24px;
+        height: auto;
+        min-height: auto;
+        padding-top: 8px;
+    }
+
+    .scroll-video-hero__card::before {
+        display: none;
+    }
+
+    .scroll-video-hero__content {
+        max-width: none;
+        padding-top: 0;
+    }
+
+    .scroll-video-hero__title {
+        max-width: 12ch;
+    }
+
+    .scroll-video-hero__subtitle {
+        margin-top: 14px;
+        line-height: 1.58;
+    }
+
+    .scroll-video-hero__media {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        width: 140%;
+        max-width: none;
+        min-height: 240px;
+        aspect-ratio: 16 / 9;
+        overflow: visible;
+        pointer-events: none;
+        transform: translateX(-125px);
+    }
+
+    .scroll-video-hero__video {
+        pointer-events: none;
+        transform: translate3d(calc(var(--scroll-video-progress) * -6%), calc(var(--scroll-video-progress) * 10px), 0) scale(calc(1 + var(--scroll-video-progress) * .03));
+    }
+
+    .scroll-video-hero__actions {
+        flex-direction: column;
+        margin-top: 18px;
+        gap: 10px;
+    }
+}
