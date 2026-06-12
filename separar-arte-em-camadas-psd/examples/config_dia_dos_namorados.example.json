@@ -1,0 +1,56 @@
+{
+  "notes": "Exemplo inspirado na arte Dia dos Namorados aprovada. Ajuste coordenadas para cada nova imagem.",
+  "background": {
+    "name": "01_Fundo_limpo_aquarela",
+    "inpaint_radius": 3,
+    "large_object_layers": ["04_Polaroid_superior", "05_Polaroid_inferior"],
+    "directional_fill": "from_left"
+  },
+  "layers": [
+    {
+      "name": "02_Ornamentos_dourados",
+      "type": "hsv",
+      "h_min": 10,
+      "h_max": 34,
+      "s_min": 28,
+      "v_min": 80,
+      "v_max": 250,
+      "regions": [[0, 0, 205, 265], [0, 0, 45, 1160], [635, 1240, 941, 1672]],
+      "exclude_layers": ["04_Polaroid_superior", "05_Polaroid_inferior"],
+      "dilate": 1,
+      "blur": 0.5
+    },
+    {
+      "name": "03_Texto_foto_principal",
+      "type": "dark_text",
+      "regions": [[185, 615, 560, 850]],
+      "threshold": 18,
+      "dilate": 1,
+      "blur": 0.65,
+      "exclude_layers": ["04_Polaroid_superior"]
+    },
+    {
+      "name": "04_Polaroid_superior",
+      "type": "shape",
+      "polygons": [[[615, 485], [941, 515], [895, 990], [585, 935]]],
+      "rects": [[820, 490, 932, 610]],
+      "feather": 1
+    },
+    {
+      "name": "05_Polaroid_inferior",
+      "type": "shape",
+      "polygons": [[[632, 940], [941, 900], [941, 1375], [675, 1415]]],
+      "rects": [[735, 900, 872, 985]],
+      "feather": 1
+    },
+    {
+      "name": "06_Texto_Dia_dos_Namorados",
+      "type": "dark_text",
+      "regions": [[35, 1085, 610, 1630]],
+      "threshold": 18,
+      "dilate": 1,
+      "blur": 0.65,
+      "exclude_layers": ["05_Polaroid_inferior"]
+    }
+  ]
+}
