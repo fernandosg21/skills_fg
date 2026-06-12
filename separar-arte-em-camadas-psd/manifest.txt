@@ -1,0 +1,6 @@
+SKILL.md
+README.md
+scripts/make_layered_psd_from_flat_image.py
+examples/config_dia_dos_namorados.example.json
+prompts/prompt_mapa_de_camadas.md
+checklists/qa_psd_camadas.md
