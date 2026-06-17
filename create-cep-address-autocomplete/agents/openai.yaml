@@ -1,0 +1,4 @@
+interface:
+  display_name: "CEP Address Autocomplete"
+  short_description: "Autocomplete de endereco por CEP"
+  default_prompt: "Use $create-cep-address-autocomplete to add a CEP-first address autocomplete form to this project."
