@@ -1,0 +1,4 @@
+interface:
+  display_name: "Replicate Update Stories"
+  short_description: "Add tenant-safe product update stories"
+  default_prompt: "Use $replicate-update-stories to add a tenant-safe product update stories flow to this app."
