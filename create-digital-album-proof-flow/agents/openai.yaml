@@ -1,0 +1,4 @@
+interface:
+  display_name: "Digital Album Proof Flow"
+  short_description: "Replicate Proof-style digital album creation"
+  default_prompt: "Use $create-digital-album-proof-flow to add a standalone Proof-style digital album creation flow to this project."
