@@ -1,6 +1,6 @@
 ---
 name: agente-atendimento-whatsapp
-description: Implementa um agente autônomo de atendimento no WhatsApp (vendedor consultivo por IA) que responde clientes sozinho com segurança — memória durável por conversa (não repete perguntas), roteamento multi-provedor de LLM com escalonamento determinístico e fallback, prompt de vendas com guardrails que nunca inventam preço/desconto nem fecham venda, travas de opt-in/blocklist/pausas, ingestão idempotente anti-eco, follow-through de agenda, fechamento determinístico com handoff humano e painel de controle/observabilidade. Use quando o usuário pedir chatbot ou agente de WhatsApp/atendimento, atendente virtual, bot de vendas por IA, responder leads automaticamente, SDR/vendedor por IA, autoresponder de WhatsApp, integração com Evolution API/Meta Cloud API, ou automação de atendimento conversacional. Agnóstico de linguagem (Node, Python, Ruby, Go, PHP) e de banco. Baseada na implementação de referência do Memora (a:\Site Fotografia\Memora.fot.br). Para medir tokens/custo das chamadas de IA, veja a skill medidor-uso-ia.
+description: Implementa um agente autônomo de atendimento no WhatsApp (vendedor consultivo por IA) que responde clientes sozinho com segurança — memória durável por conversa (não repete perguntas), roteamento multi-provedor de LLM com escalonamento determinístico e fallback, prompt de vendas com guardrails que nunca inventam preço/desconto nem fecham venda, travas de opt-in/blocklist/pausas, ingestão idempotente anti-eco, follow-through de agenda, fechamento determinístico com handoff humano, painel de controle/observabilidade e treino de voz por conversas reais (o dono envia .txt exportados do WhatsApp e a IA aprende o jeito da empresa, com LGPD inviolável). Use quando o usuário pedir chatbot ou agente de WhatsApp/atendimento, atendente virtual, bot de vendas por IA, responder leads automaticamente, SDR/vendedor por IA, autoresponder de WhatsApp, integração com Evolution API/Meta Cloud API, automação de atendimento conversacional, ou ensinar/treinar o agente a falar no estilo da empresa a partir de conversas reais. Agnóstico de linguagem (Node, Python, Ruby, Go, PHP) e de banco. Baseada na implementação de referência do Memora (a:\Site Fotografia\Memora.fot.br). Para medir tokens/custo das chamadas de IA, veja a skill medidor-uso-ia.
 ---
 
 # Agente autônomo de atendimento no WhatsApp (vendedor consultivo)
@@ -38,6 +38,7 @@ dono saber.
 | [references/prompt-vendedor-consultivo.md](references/prompt-vendedor-consultivo.md) | Perfil por tenant, estilos, montagem do prompt, 10 guardrails duros, playbook A–G, follow-through de agenda, fechamento determinístico |
 | [references/ingestao-anti-eco-e-agendamento.md](references/ingestao-anti-eco-e-agendamento.md) | ACK rápido de webhook, upsert idempotente, marcador `source`, adoção de eco, lock por conversa, despacho agendado por claim atômico (cron-independente) |
 | [references/painel-observabilidade-e-testes.md](references/painel-observabilidade-e-testes.md) | Estado efetivo com blockers, log de decisões, fila "sem resposta", clientes atendidos, alertas, e a estratégia de testes em 3 camadas + cicatrizes de produção |
+| [references/treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md) | **Opcional/avançado**: aprender o jeito da empresa de conversas reais exportadas — map-reduce em passos curtos, os 4 contratos (técnica≠formato, coexistência, LGPD inviolável, por conta), melhoria contínua, parser, scrub de privacidade em camadas e as cicatrizes da feature |
 
 ## Ordem de implementação
 
@@ -74,6 +75,10 @@ ligue o autônomo.
     mínimo). Reproduza cada bug encontrado como caso de teste.
 11. **Ligar o autônomo** — só depois de tudo acima: mudar o modo do perfil para autônomo e validar
     com 2 mensagens seguidas reais.
+12. **(Opcional) Treino de voz por conversas reais** — reforço avançado do prompt: o dono envia
+    `.txt` exportados e a IA aprende o jeito da empresa ([treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md)).
+    Entregue por último — depende do prompt e da infra de LLM já prontos, e exige acertar os 4
+    contratos (com **LGPD inviolável** no topo) antes de qualquer linha.
 
 ## Decisões de projeto que importam (não mude sem motivo)
 
@@ -124,6 +129,10 @@ ligue o autônomo.
   tinha respondido, prefira o **silêncio** a mandar texto inseguro.
 - **Detecção de intenção é regex (não NLU)** sobre texto normalizado sem acento — gírias fora dos
   padrões podem não disparar fechamento/pedido-de-humano. É lista de padrões, não compreensão.
+- **(Treino de voz) LGPD falha nos detalhes**: senha descartada só no parse vaza no staging;
+  dígitos separados por espaço furam o scrub de CPF; scrubar data/preço quebra a análise;
+  truncamento global de resposta corta o JSON grande da extração; loop de consolidação preso se
+  não trata `applied`/`failed`. Ver [treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md).
 
 ## Checklist de verificação (mobile + desktop no painel)
 
@@ -145,6 +154,7 @@ ligue o autônomo.
 - [ ] Uso/custo de cada chamada instrumentado (skill medidor-uso-ia)
 - [ ] Testes de lógica pura passam sem rede/banco; smoke ao vivo pula provedor sem chave
 - [ ] Rótulos do painel sem jargão técnico (o dono é não-técnico)
+- [ ] (Se treino de voz) os 4 contratos valem, com LGPD inviolável testada nos dois lados (remove documento/senha; preserva data/preço) — checklist próprio em [treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md)
 
 ## Saída esperada ao final
 

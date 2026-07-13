@@ -8,7 +8,7 @@ Cada subpasta é uma skill independente, instalável copiando para `~/.claude/sk
 
 | Skill | Descrição |
 |-------|-----------|
-| [`agente-atendimento-whatsapp`](./agente-atendimento-whatsapp) | Implementa um agente autônomo de atendimento no WhatsApp (vendedor consultivo por IA) que responde clientes sozinho com segurança: memória durável por conversa, roteamento multi-provedor de LLM com fallback, guardrails que não inventam preço nem fecham venda, travas de opt-in/blocklist/pausas, ingestão anti-eco e painel de controle. Agnóstico de stack. |
+| [`agente-atendimento-whatsapp`](./agente-atendimento-whatsapp) | Implementa um agente autônomo de atendimento no WhatsApp (vendedor consultivo por IA) que responde clientes sozinho com segurança: memória durável por conversa, roteamento multi-provedor de LLM com fallback, guardrails que não inventam preço nem fecham venda, travas de opt-in/blocklist/pausas, ingestão anti-eco, painel de controle e treino de voz por conversas reais (aprende o jeito da empresa de .txt exportados, com LGPD inviolável). Agnóstico de stack. |
 | [`contratos-assinatura-digital-br`](./contratos-assinatura-digital-br) | Implementa sistema de contratos com assinatura digital/eletrônica seguindo a legislação brasileira (MP 2.200-2 art. 10 §2º, Lei 14.063/2020): templates DOCX com placeholders, link público por token, evidências forenses e hashes SHA-256 de inviolabilidade. |
 | [`create-scroll-video-hero`](./create-scroll-video-hero) | Cria hero section com vídeo controlado pelo scroll (blob preload, decoder unlock, `--hero-progress`). |
 | [`implement-asaas-checkout`](./implement-asaas-checkout) | Implementa checkout e cobranças recorrentes com o gateway Asaas. |
