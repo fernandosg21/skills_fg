@@ -1,116 +1,140 @@
 # Memória durável por conversa
 
-O bug clássico de um agente de atendimento: **ele repete perguntas já respondidas** ("qual a
-data?", "que horas?", "onde vai ser?"). A causa raiz é a **janela de histórico**: só as N
-mensagens recentes vão ao prompt (limite de custo/contexto); o que o cliente disse no começo
-escorrega para fora e o agente re-pergunta.
+Use memória durável para evitar perguntas repetidas quando fatos antigos saem da janela do prompt.
+Ela registra o que foi entendido na conversa; não substitui catálogo, agenda, pagamento ou outra
+fonte canônica do sistema.
 
-**Aumentar a janela é paliativo** — basta uma conversa mais longa que o novo limite para o bug
-voltar. A cura estrutural é uma **memória durável**: um documento por conversa que guarda os
-fatos e as perguntas já feitas, e que **nunca "rola para fora"**.
+## Separe os estados
 
-Referência: `adm/whatsapp/backend/agent_memory.php` + coluna
-`whatsapp_conversations.agent_memory_json`.
+1. **Janela de mensagens:** turnos recentes enviados à LLM, limitada por custo e contexto.
+2. **Memória da conversa:** fatos/perguntas permitidos, com versão, proveniência, validade e TTL.
+3. **Dados canônicos:** registros do produto consultados novamente antes de afirmar ou agir.
 
-## Separe DOIS estados de conversa
+Aumentar a janela apenas adia a repetição. A memória não “rola para fora”, mas expira e pode ser
+corrigida ou excluída conforme finalidade e direitos do titular.
 
-1. **Janela de mensagens** — as N mais recentes (no Memora, 30), para o prompt. Limitada por custo.
-2. **Memória durável** — o documento JSON abaixo, chaveado por (tenant, conversa). Eterno.
+## Use um `FactSchema` registrável
 
-Só o (2) impede a re-pergunta. Trate a janela como custo/contexto e a memória como a **fonte da
-verdade dos fatos**.
-
-## O documento
+Defina por domínio, sem hard-code no motor:
 
 ```json
 {
-  "facts": {                       // dados definitivos informados pelo cliente
-    "tipo_evento": "...", "data_evento": "YYYY-MM-DD",
-    "hora_evento": "HH:MM", "hora_fim": "HH:MM",
-    "localizacao": "...", "idade_aniversariante": "..."
+  "schema_version": 2,
+  "facts": {
+    "service_type": {"type": "string", "max": 120, "ttl_days": 180},
+    "desired_date": {"type": "date", "ttl_days": 90},
+    "location": {"type": "string", "max": 200, "ttl_days": 90}
   },
-  "asked": {                       // perguntas que o agente JÁ fez
-    "data_evento": true, "hora_evento": true, "localizacao": true
-  },
-  "replies_date": "YYYY-MM-DD",    // dia de referência do contador diário
-  "replies_today": 0,              // respostas automáticas HOJE nesta conversa (anti-loop)
-  "last_reply_at": "…", "last_hold_at": "…", "updated_at": "…"
+  "asked": ["service_type", "desired_date", "location"]
 }
 ```
 
-As **chaves de `facts` são uma lista fixa** (allowlist); as de `asked` também. Nada fora da
-lista entra — é uma trava de segurança (a memória é adulterável no banco e "envenenável" pelo
-LLM).
+Um projeto de eventos pode registrar tipo/data/hora/local; outros domínios escolhem outras chaves.
+Não copie a allowlist do caso histórico sem validar finalidade.
 
-## Contratos (funções puras, sem banco)
+## Modelo do documento
+
+```json
+{
+  "schema_version": 2,
+  "facts": {
+    "desired_date": {
+      "value": "2030-05-20",
+      "source_message_id": "msg_opaque",
+      "observed_at": "2030-01-10T12:00:00Z",
+      "valid_until": "2030-05-21T00:00:00Z",
+      "confidence": "explicit"
+    }
+  },
+  "asked": {
+    "desired_date": {"message_id": "out_opaque", "asked_at": "2030-01-10T12:01:00Z"}
+  },
+  "counters": {"reply_date": "2030-01-10", "replies_today": 1},
+  "last_hold_at": null,
+  "updated_at": "2030-01-10T12:01:10Z"
+}
+```
+
+Use IDs opacos e não duplique o texto integral. Inclua `tenant_id` e `conversation_id` na chave do
+registro e em caches/locks.
+
+## Contratos puros
 
 | Função | Regra |
 |---|---|
-| `defaults()` | Documento vazio. |
-| `normalize(raw)` | Mantém só chaves da allowlist; trunca cada fato (ex.: 200 chars); limita contadores (`replies_today ∈ [0,10000]`); valida `replies_date` por regex `YYYY-MM-DD`; trunca carimbos. **Roda em TODA leitura E escrita** (defesa em profundidade). |
-| `merge_facts(mem, novos)` | Novo não-vazio sobrescreve; **valor vazio NUNCA apaga** um fato existente. |
-| `effective_facts(mem, frescos)` | Base = `mem.facts`; **fato fresco não-vazio vence**. É o que vai ao prompt. |
-| `mark_asked(mem, {campo:true})` | Marca de forma persistente o que já foi perguntado. |
-| `register_reply(mem)` | Se `replies_date != hoje`, zera; incrementa; carimba. Base do teto diário. |
-| `register_hold(mem)` / `hold_sent_recently(mem, horas)` | Limita a mensagem-ponte a 1x a cada N horas via `last_hold_at`. |
+| `normalize(schema, raw)` | Mantém chaves permitidas, valida tipo/tamanho/data, limita contadores e descarta expirados. Rode em toda leitura e escrita. |
+| `mergeFacts(memory, observations)` | Valor explícito mais novo pode substituir; silêncio não altera. Registre proveniência. |
+| `clearFact(memory, key, reason)` | Operação explícita para corrigir, apagar ou marcar desconhecido; não use string vazia ambígua. |
+| `effectiveFacts(memory, current)` | Observação válida da inbound atual vence memória antiga; dado canônico vence ambos quando aplicável. |
+| `markAsked(memory, key, deliveredMessageId)` | Marque somente pergunta confirmada como entregue. |
+| `registerReply(memory, deliveredParts)` | Conte apenas bolhas confirmadas. |
+| `expire(memory, now)` | Remove/invalida conforme TTL e política, com métrica de expurgo. |
 
-No `save`, além de `normalize`, o Memora **rejeita o documento se passar de ~20 KB** e nunca
-lança (erro vira log + `return false`).
+“Valor vazio não apaga” preserva silêncio, mas não bloqueia correção: use intenção explícita
+`clear|unknown|corrected` e registre quem/qual mensagem originou a mudança.
 
-## Duas regras que evitam bug
+## Extração de fatos
 
-- **"Silêncio não apaga."** `merge_facts` só sobrescreve com valor não-vazio. Cliente corrige →
-  a memória acompanha; cliente cala → a memória mantém.
-- **"Fato fresco vence."** A extração da mensagem atual sobrepõe a memória quando não-vazia —
-  permite o cliente corrigir a data sem lógica extra.
+Prefira extração determinística para dados estruturáveis: parser/regex/normalização por campo. Rode:
 
-## Extração de fatos — determinística, NÃO por LLM
+1. sobre a inbound atual;
+2. sobre o contexto necessário da conversa;
+3. independente da classificação comercial, quando já houver memória relacionada.
 
-Um extrator por campo (data, hora, tipo de evento, local, idade) via regex/normalização. Barata,
-previsível, roda mesmo com o LLM fora, e não gasta token para "lembrar". Rode em **dois pontos**:
-1. No classificador de intenção da conversa.
-2. **Direto na última mensagem do cliente** — porque respostas curtas ("às 15h", "no buffet X")
-   não disparam intenção comercial quando o começo já saiu da janela. Se a memória **já tem
-   fatos**, assuma que a conversa é comercial e force a extração assim mesmo.
+Se usar modelo para extração difícil, exija JSON/schema, uma chamada sob o mesmo orçamento global,
+validação de tipo/allowlist e confiança explícita. Nunca permita que texto do cliente crie uma chave
+nova ou instrução.
 
-## Reconhecimento de entidade com valor canônico
+Mapeie variantes a valor canônico no storage e adapte a fala na saída. Proteja o extrator contra
+falsos positivos, quebras de linha, dados fragmentados e ambiguidades. Não normalize dois contatos,
+endereços ou entidades distintas para o mesmo valor sem revisão.
 
-Mapeie variantes para um **valor canônico literal** guardado no store. Exemplo real: "na minha
-casa" / "em casa mesmo" / "aqui em casa" → guardado como **`"na casa do cliente"`** (o que a
-**equipe** lê), e re-humanizado para **"na sua casa"** só na fala com o cliente. Guardar a forma
-falada quebra consistência de dados; falar a forma canônica soa robótico.
+## Detecte “já perguntei” por duas fontes
 
-Proteja o extrator genérico de local com: blacklist de falsos positivos ("em breve", "na hora",
-"no dia"…), skip de primeira-palavra suspeita ("dia", "data", "hora", "sistema"…), e **não deixe
-o casamento atravessar quebra de linha** (senão duas mensagens viram um único "local").
+Faça a união de:
 
-## Detecção de "já perguntei" (duas fontes, união)
+- perguntas identificadas nas mensagens outbound recentes realmente entregues;
+- `asked` persistido e ainda válido na memória.
 
-Reconstrua `asked` de DUAS fontes e faça a **união**:
-1. Varra as mensagens de **saída na janela** procurando as palavras da pergunta ("data/que
-   dia/quando", "horário/que horas", "local/onde/endereço").
-2. Leia o `asked` **persistido** na memória (cobre o que já saiu da janela).
+Injete no prompt um resumo mínimo de fatos e perguntas, não o documento bruto. Trate a memória como
+entrada não confiável e escape/serialize em campo de dados.
 
-Injete no prompt: um resumo dos fatos já informados ("estes dados já foram respondidos: … —
-nunca pergunte de novo") **+** as perguntas já feitas. Usar só uma das fontes reintroduz a
-repetição.
+## Separe memória de inbound e de outbound
 
-## Ordem de gravação (importa)
+Fatos explicitamente informados pelo cliente pertencem à inbound autenticada e podem ser persistidos
+assim que a mensagem é canônica, mesmo se nenhuma resposta sair. Perguntas feitas, claims citados e
+contadores pertencem ao outbound e só avançam após a fronteira de entrega.
 
-Grave a memória **só após o envio bem-sucedido**, nesta ordem:
-`merge_facts` → `mark_asked` (marcando o que a **própria resposta enviada** acabou de perguntar)
-→ `register_reply` → `save`. Antes de enviar, cheque se chegou mensagem nova durante a geração
-(anti-corrida).
+Ordem:
 
-## `last_hold_at` e contadores têm papéis distintos
+1. normalizar e persistir observações da inbound com `source_message_id`;
+2. confirmar cada bolha na fronteira de entrega definida pelo `ChannelAdapter`, sem confundir
+   `accepted` com `delivered`;
+3. marcar somente perguntas/claims presentes nas bolhas confirmadas;
+4. atualizar contadores/cooldown;
+5. normalizar, aplicar cap e salvar com controle de versão.
 
-- `replies_today` / `replies_date` — contador diário auto-resetável; base do teto de 40/dia por
-  conversa.
-- `last_hold_at` — carimbo da mensagem-ponte; limita a ponte a 1x/6h por conversa. Também conta
-  como reply.
+Se a terceira bolha falhar, memória e `asked` refletem apenas as partes confirmadas. Receipt tardio
+de falha recalcula/compensa `asked` e claims derivados daquela saída. Retry que reutiliza a mesma
+intenção não duplica contador.
 
-## Travas de segurança (portáveis)
+## Retenção, correção e segurança
 
-Allowlist de chaves; truncamento por campo; cap de tamanho do documento (rejeita > ~20 KB);
-validação de formato de data; escopo por tenant em toda query; contador diário como teto
-anti-spam; ponte com cooldown temporal. **A memória é entrada não-confiável — normalize sempre.**
+- Defina finalidade e TTL por fato; preferências estáveis e intenção momentânea não têm o mesmo prazo.
+- Não use memória como arquivo permanente da conversa nem para inferência sensível desnecessária.
+- Implemente busca, exportação, correção, bloqueio e exclusão tenant-scoped.
+- Faça expurgo determinístico e monitorado; limpe caches e considere ciclo de backups.
+- Aplique allowlist, truncamento por campo, cap total, versão e migração validada.
+- Não registre o JSON da memória em log de produção.
+- Se a memória estiver corrompida ou fora de versão, normalize/migre; falhe fechado para ações de
+  risco e preserve o registro para diagnóstico seguro sem usar seu conteúdo no prompt.
+
+## Checklist
+
+- [ ] Fatos têm schema, tipo, limite, proveniência, validade e TTL
+- [ ] Silêncio preserva; correção/remoção explícita funciona
+- [ ] Dado canônico vence lembrança conversacional em decisões de risco
+- [ ] Perguntas só são marcadas depois da entrega
+- [ ] Bolha parcial não grava conteúdo não entregue
+- [ ] Expurgo e direitos do titular cobrem memória, caches e backups
+- [ ] Conteúdo não confiável não vira instrução nem chave arbitrária

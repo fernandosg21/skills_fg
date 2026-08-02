@@ -1,182 +1,180 @@
 ---
 name: agente-atendimento-whatsapp
-description: Implementa um agente autônomo de atendimento no WhatsApp (vendedor consultivo por IA) que responde clientes sozinho com segurança — memória durável por conversa (não repete perguntas), roteamento multi-provedor de LLM com escalonamento determinístico e fallback, prompt de vendas com guardrails que nunca inventam preço/desconto nem fecham venda, travas de opt-in/blocklist/pausas, ingestão idempotente anti-eco, follow-through de agenda, fechamento determinístico com handoff humano, painel de controle/observabilidade e treino de voz por conversas reais (o dono envia .txt exportados do WhatsApp e a IA aprende o jeito da empresa, com LGPD inviolável). Use quando o usuário pedir chatbot ou agente de WhatsApp/atendimento, atendente virtual, bot de vendas por IA, responder leads automaticamente, SDR/vendedor por IA, autoresponder de WhatsApp, integração com Evolution API/Meta Cloud API, automação de atendimento conversacional, ou ensinar/treinar o agente a falar no estilo da empresa a partir de conversas reais. Agnóstico de linguagem (Node, Python, Ruby, Go, PHP) e de banco. Baseada na implementação de referência do Memora (a:\Site Fotografia\Memora.fot.br). Para medir tokens/custo das chamadas de IA, veja a skill medidor-uso-ia.
+description: "Implementa ou audita atendimento autônomo no WhatsApp com contratos portáveis de segurança e confiabilidade: webhook autenticado e idempotente, inbox/outbox, reconciliação, concorrência sem respostas obsoletas, gates frescos, anti-eco, memória com retenção, LLM com deadline global, validação determinística de preços e compromissos, privacidade, observabilidade, testes e rollout shadow para piloto. Use para chatbot, atendente virtual, SDR ou vendedor por IA, Evolution API, Meta Cloud API, automação de leads, mensagens agendadas, respostas duplicadas, treinamento de voz por conversas ou preparação de go-live. Os contratos centrais são independentes de stack; exemplos PHP/MySQL e do Memora são adaptações históricas, não pré-requisitos."
 ---
 
-# Agente autônomo de atendimento no WhatsApp (vendedor consultivo)
+# Agente autônomo de atendimento no WhatsApp
 
-Skill de implementação: replica em qualquer projeto o agente de atendimento do Memora — um
-LLM que conversa com o cliente pelo WhatsApp, vende de forma consultiva e **age sozinho com
-segurança**. As citações `arquivo:linha` nos references apontam para a referência em
-`a:\Site Fotografia\Memora.fot.br` (`adm/whatsapp/`); os references contêm o essencial mesmo
-sem acesso a ela.
+Implemente ou audite um agente que conversa em nome de uma empresa sem entregar ao LLM autoridade
+sobre dinheiro, disponibilidade, compromissos ou efeitos externos. Preserve os contratos centrais
+em qualquer stack e adapte somente armazenamento, provedor, domínio e idioma.
 
-Skill irmã: [`medidor-uso-ia`](../medidor-uso-ia) — mede tokens/custo de cada chamada de LLM
-(o agente é o maior gerador de chamadas). Instrumente as duas juntas.
+> **Deixe o LLM redigir; deixe o código autorizar, consultar, validar, persistir e entregar.**
 
-## O princípio-mestre (a única frase para lembrar)
+Não ligue outbound real durante a implementação. Comece em `shadow`, use destinatários controlados
+no ensaio e só avance depois dos critérios de go-live.
 
-> **O LLM conduz e encanta; o código detém tudo que envolve dinheiro, compromisso e
-> disponibilidade.** O modelo é livre para conversar; os momentos de risco (consultar agenda,
-> falar de preço/parcelamento, fechar venda) são interceptados por código determinístico
-> ANTES e/ou DEPOIS da chamada ao modelo.
+## Leia as referências conforme o trabalho
 
-Um agente que "só responde com IA" é fácil e perigoso. Todo o valor desta skill está nas
-**travas em volta do LLM**: opt-in, memória, anti-duplicação, anti-eco, guardrails de venda,
-fechamento determinístico, observabilidade. Sem elas, o agente responde duas vezes, responde
-mensagem velha, inventa preço, promete contrato, atropela o atendimento humano ou some sem o
-dono saber.
-
-## Referências (leia conforme a etapa)
-
-| Arquivo | Conteúdo |
+| Referência | Quando usar |
 |---|---|
-| [references/arquitetura-e-dados.md](references/arquitetura-e-dados.md) | Fluxo ponta a ponta, componentes e as 5 entidades de dados (conversation, message, decision, profile, settings) + regras de schema idempotente |
-| [references/travas-e-guardas.md](references/travas-e-guardas.md) | **O coração**: as ~20 travas do responder na ordem exata, duplo opt-in, gate, fail-open vs fail-closed, pausas/retomada, blocklist, sanitização |
-| [references/memoria-duravel.md](references/memoria-duravel.md) | Memória por conversa (fatos + perguntas), extração determinística, "silêncio não apaga", detecção de "já perguntei" — mata a repetição de perguntas |
-| [references/roteamento-llm.md](references/roteamento-llm.md) | Tiers, seleção determinística, cadeia de fallback que sempre termina no piso, clientes por wire-protocol (as pegadinhas da Messages API), deploy seguro antes das chaves |
-| [references/prompt-vendedor-consultivo.md](references/prompt-vendedor-consultivo.md) | Perfil por tenant, estilos, montagem do prompt, 10 guardrails duros, playbook A–G, follow-through de agenda, fechamento determinístico |
-| [references/ingestao-anti-eco-e-agendamento.md](references/ingestao-anti-eco-e-agendamento.md) | ACK rápido de webhook, upsert idempotente, marcador `source`, adoção de eco, lock por conversa, despacho agendado por claim atômico (cron-independente) |
-| [references/painel-observabilidade-e-testes.md](references/painel-observabilidade-e-testes.md) | Estado efetivo com blockers, log de decisões, fila "sem resposta", clientes atendidos, alertas, e a estratégia de testes em 3 camadas + cicatrizes de produção |
-| [references/treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md) | **Opcional/avançado**: aprender o jeito da empresa de conversas reais exportadas — map-reduce em passos curtos, os 4 contratos (técnica≠formato, coexistência, LGPD inviolável, por conta), melhoria contínua, parser, scrub de privacidade em camadas e as cicatrizes da feature |
+| [arquitetura-e-dados.md](references/arquitetura-e-dados.md) | Mapear o fluxo, ownership, inbox, ledger, conversas, mensagens, outbox e schema |
+| [adaptadores-de-dominio-e-runtime.md](references/adaptadores-de-dominio-e-runtime.md) | Portar para outro domínio, locale, provedor, linguagem, banco ou runtime legado |
+| [travas-e-guardas.md](references/travas-e-guardas.md) | Definir a ordem dos gates, pausas, opt-out, locks, rate limit e resposta segura |
+| [confiabilidade-envio-e-go-live.md](references/confiabilidade-envio-e-go-live.md) | Implementar outbox, reconciliação, fila, concorrência, testes de falha e rollout |
+| [ingestao-anti-eco-e-agendamento.md](references/ingestao-anti-eco-e-agendamento.md) | Integrar webhook, ACK, dedupe, eco, receipt e mensagens agendadas |
+| [roteamento-llm.md](references/roteamento-llm.md) | Configurar registry, tiers, deadline, circuit breaker, fallback e parsing |
+| [prompt-vendedor-consultivo.md](references/prompt-vendedor-consultivo.md) | Separar políticas, montar prompt, consultar ferramentas e validar a resposta |
+| [memoria-duravel.md](references/memoria-duravel.md) | Evitar perguntas repetidas com fatos versionados, proveniência, TTL e correção |
+| [seguranca-privacidade-e-governanca.md](references/seguranca-privacidade-e-governanca.md) | Tratar autenticação, tenant, segredos, consentimento, opt-out, direitos, mídia e logs |
+| [painel-observabilidade-e-testes.md](references/painel-observabilidade-e-testes.md) | Criar painel read-only, ações explícitas, métricas, ledger e suíte de testes |
+| [treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md) | Importar conversas como opção avançada, com base legal, upload seguro e scrub |
+
+A skill irmã `medidor-uso-ia`, quando instalada, pode fornecer telemetria detalhada. Não crie
+dependência obrigatória: registre localmente, no mínimo, feature, provedor, modelo, latência,
+resultado, fallback e uso agregado sem prompt/resposta/PII.
+
+## Primeiro, descubra o sistema real
+
+Antes de editar:
+
+1. Localize todos os entrypoints de inbound e outbound, inclusive webhook, painel, cron, CLI,
+   retry, campanhas, agendamentos, testes e caminhos legados.
+2. Identifique tenant, conta do canal, conversa, contato e IDs técnicos. Prove ownership em cada
+   leitura e mutação; telefone sozinho não é vínculo suficiente.
+3. Mapeie schema, migrações, filas, locks, transações, retenção, logs, mídia, segredos e estado da
+   conexão.
+4. Liste consumidores de cada campo/endpoint antes de mudar contrato.
+5. Classifique o estado atual: `off`, `shadow` ou `autonomous`. Trate `learn_only`, `aprendizado` e
+   nomes antigos apenas como aliases de migração para `shadow`.
+6. Registre o que é código confirmado, configuração observada e hipótese. Não confunda uma
+   implementação local auditada com comportamento já validado em produção.
+
+## Invariantes que não podem depender do LLM
+
+- Autentique e limite o webhook antes do banco de negócio, schema ou efeito; use somente o resolvedor
+  mínimo de segredo pré-banco.
+- Faça o inbound ser at-least-once com handler idempotente e inbox/ledger durável.
+- Persista a intenção de outbound antes do I/O externo; use outbox com chave estável e unique.
+- Trate timeout após possível aceite como `unknown`; reconcilie antes de reenviar.
+- Use lock de geração por inbound e lock curto de entrega por conversa. Nunca segure a conversa
+  durante a chamada ao LLM.
+- Releia todos os gates imediatamente antes de confirmar a intenção/entrega.
+- Faça agente, agendamento, ponte e automação compartilharem outbox, quota e reconciliador.
+- Separe receipt/status técnico de mensagem conversacional; receipt não atualiza atividade humana.
+- Valide por código preço, moeda, disponibilidade, desconto, compromisso e ferramenta solicitada.
+- Persista fatos de inbound autenticada com proveniência; marque perguntas/claims de outbound
+  somente após a fronteira de entrega definida pelo canal.
+- Mantenha GET administrativo sem efeitos; toda mutação exige POST, autorização e CSRF.
+- Minimize antes do INSERT e antes do LLM. Nunca grave prompt, resposta ou erro bruto em produção.
+- Separe ativação pelo dono de consentimento do destinatário; opt-out bloqueia novos envios.
+
+Sem idempotência do provedor ou reconciliação conclusiva, descreva outbound como
+**effectively-once**, não como exactly-once.
+
+## Contratos portáveis
+
+Implemente portas equivalentes, mesmo que os nomes mudem:
+
+```text
+TenantResolver             -> prova tenant + channel account
+ContactIdentityResolver    -> resolve contato sem colisão ambígua
+WebhookAuthenticator       -> valida assinatura/segredo do corpo bruto
+InboxStore                 -> dedupe, lease, retry e estado terminal do evento
+ConversationStore          -> mensagens, origem e atividade conversacional
+AgentPolicy                -> computeEffectiveState + canSend
+FactSchema                 -> fatos permitidos, versão, TTL e proveniência
+CatalogLookup              -> dados comerciais canônicos
+AvailabilityPolicy         -> disponibilidade canônica
+CommitmentPolicy           -> o que pode ser prometido e por quem
+HandoffPolicy              -> quando e para onde transferir
+LocaleAdapter              -> telefone, moeda, data, idioma e opt-out local
+LlmRouter                  -> deadline, tiers, circuit breaker e resultado validado
+ReplyGrounder              -> confere afirmações e ações contra fontes canônicas
+OutboxStore                -> intenção idempotente, lease, unknown, retry e dead-letter
+ChannelAdapter             -> envia/reconcilia sem decidir política de negócio
+AuditSink                  -> metadados seguros; nunca fonte canônica de recuperação
+```
 
 ## Ordem de implementação
 
-Cada etapa funciona sem as seguintes — dá para entregar valor incremental e parar em qualquer
-ponto. Comece em **modo aprendizado** (o agente observa e sugere, mas não envia) e só depois
-ligue o autônomo.
+1. **Mapa e ameaça:** documente entrypoints, ownership, estados, efeitos e riscos.
+2. **Migração controlada:** prefira o migrador nativo; mantenha DDL fora de transações de negócio.
+3. **Webhook seguro:** limite bytes, autentique, resolva a conta, persista e só então ACK.
+4. **Inbox/ledger:** processe o `event_id` exato com lease, retry, fencing token e dead-letter.
+5. **Outbox:** crie intenção antes do provedor, chave única, estados ambíguos e reconciliador.
+6. **Proveniência/anti-eco:** grave `source`, `origin_inbound_id`, `outbox_id` e IDs do provedor em
+   campos próprios protegidos.
+7. **Estado efetivo:** derive flags de `off|shadow|autonomous`; migre legado e exponha blockers.
+8. **LLM sob orçamento:** use uma geração lógica por request, deadline global e parsing validado.
+9. **Políticas e prompt:** separe guardrails imutáveis, compromissos administrativos, conteúdo do
+   tenant e estilo; trate todo conteúdo externo como não confiável.
+10. **Grounding:** consulte dados antes da LLM e valide resposta/ações depois; falha cai em resposta
+    segura, fila ou handoff.
+11. **Memória:** use schema registrável, versão, proveniência, TTL, correção e exclusão explícita.
+12. **Concorrência:** gere por inbound; entregue sob trava curta e descarte resposta obsoleta.
+13. **Fila/horário:** use dispatcher autenticado e monitorado; não rode worker ao abrir página.
+14. **Privacidade:** implemente consentimento/opt-out, direitos, retenção, uploads e logs seguros.
+15. **Painel:** mostre estado real e ofereça ações POST explícitas; não esconda blockers.
+16. **Testes:** cubra lógica, adapters, processos concorrentes, crash boundaries e ensaio real
+    controlado.
+17. **Rollout:** observe ao menos sete dias e atinja a amostra pré-definida em shadow; ative um canário por
+    tenant/conversa e mantenha kill switch para voltar a shadow.
 
-1. **Schema + ingestão idempotente** — as 5 entidades ([arquitetura-e-dados.md](references/arquitetura-e-dados.md))
-   e o webhook com **ACK rápido** + upsert deduplicado ([ingestao-anti-eco-e-agendamento.md](references/ingestao-anti-eco-e-agendamento.md)).
-   Migração idempotente, schema fora de transação.
-2. **Envio com marcador de origem** — `send(..., source, pause_agent)`: toda saída carrega
-   `source` (`ai_agent`/humano); envio humano pausa o bot, envio do bot não.
-3. **Perfil e prompt (modo aprendizado)** — o registro por tenant, os 3 knobs de estilo e a
-   montagem do prompt ([prompt-vendedor-consultivo.md](references/prompt-vendedor-consultivo.md)).
-   Um "testar agente" que gera resposta sem enviar já entrega valor.
-4. **Roteamento de LLM** — registry de provedores, tiers, seleção determinística e cadeia de
-   fallback ([roteamento-llm.md](references/roteamento-llm.md)). Instrumente o uso desde já com a
-   skill [`medidor-uso-ia`](../medidor-uso-ia).
-5. **Memória durável** — fatos + perguntas por conversa; extração determinística; detecção de "já
-   perguntei" ([memoria-duravel.md](references/memoria-duravel.md)). Sem isso o agente repete
-   perguntas.
-6. **Guardrails determinísticos** — consulta de agenda ANTES + follow-through DEPOIS; detecção de
-   objeção e de "quer fechar" por regex; fechamento com handoff + pausa + tarefa humana.
-7. **As travas do responder** — implemente a sequência exata de guardas
-   ([travas-e-guardas.md](references/travas-e-guardas.md)): opt-in, gate, lock, é-a-última,
-   idempotência, limites (dia fail-closed / hora fail-open), pré-check de conexão, re-checagem de
-   corrida, rede de segurança sem vácuo.
-8. **Anti-eco** — adoção de eco sem id do provedor + guarda de 180s + lock por conversa, para o
-   eco do próprio agente não virar "intervenção humana".
-9. **Painel de controle + observabilidade** — o **estado efetivo com blockers**, o log de
-   decisões, a fila "conversas sem resposta" (1 clique), clientes atendidos e alertas ao dono
-   ([painel-observabilidade-e-testes.md](references/painel-observabilidade-e-testes.md)).
-10. **Testes** — 3 camadas (lógica pura sem I/O, contrato de API com cliente stubado, smoke ao vivo
-    mínimo). Reproduza cada bug encontrado como caso de teste.
-11. **Ligar o autônomo** — só depois de tudo acima: mudar o modo do perfil para autônomo e validar
-    com 2 mensagens seguidas reais.
-12. **(Opcional) Treino de voz por conversas reais** — reforço avançado do prompt: o dono envia
-    `.txt` exportados e a IA aprende o jeito da empresa ([treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md)).
-    Entregue por último — depende do prompt e da infra de LLM já prontos, e exige acertar os 4
-    contratos (com **LGPD inviolável** no topo) antes de qualquer linha.
+## Regras de configuração
 
-## Decisões de projeto que importam (não mude sem motivo)
+- Exponha um único modo canônico: `off`, `shadow`, `autonomous`.
+- Derive flags técnicas durante a migração e no save; não espere o usuário salvar perfil legado.
+- Reutilize a mesma função `computeEffectiveState` no runtime e na UI.
+- Mantenha política de segurança/plataforma imutável pelo tenant.
+- Permita que apenas administrador autorizado altere política de compromisso.
+- Permita ao tenant editar catálogo, contexto comercial e estilo dentro dos limites.
+- Não crie um `confidence_threshold` decorativo. Defina efeito mensurável e fallback ou remova-o.
+- Não ative outbound, aprove fila ou repare provedor como efeito colateral de página/migração.
 
-- **Um único "modo", flags derivadas.** O dono edita `off`/`aprendizado`/`autônomo`; o código
-  deriva as flags técnicas no save (invariante: `autônomo ⟺ habilitado && !aprovação_pendente`).
-  Nunca exponha flags soltas — geram o estado "meio ligado" (chip "Ligado", agente mudo).
-- **O selo de estado reutiliza a MESMA condição do motor.** Se a UI e o runtime avaliam condições
-  diferentes, o selo mente. Uma função compartilhada é a fonte única de "o agente responde?".
-- **Fechamento e objeção por regex, nunca por LLM.** São eventos de negócio (pausar, criar tarefa,
-  escolher modelo forte); não podem depender de o modelo "entender". O fechamento sai do LLM:
-  texto determinístico que celebra, resume e passa para o humano — nunca inventa preço nem promete
-  contrato.
-- **Pagamento/parcelamento só do que está escrito.** O LLM só cita condição de pagamento se
-  estiver nas regras comerciais do perfil; sem isso, "o responsável confirma". Nunca inventa
-  desconto/promoção.
-- **Consulta de risco ANTES do LLM + follow-through DEPOIS.** A agenda é consultada por código e
-  injetada no contexto; se o modelo tentar adiar ("vou verificar"), o código anexa o desfecho real
-  na mesma mensagem.
-- **Memória durável separada da janela.** A janela é custo/contexto; os fatos são eternos.
-  Aumentar a janela é paliativo — a memória durável é a cura da repetição de perguntas.
-- **Limite por conversa = fail-closed; limite global = fail-open.** Um erro numa contagem global
-  não pode calar todos os clientes do tenant; o teto por conversa segura o dano. Decisão consciente
-  de blast radius.
-- **Marcador `source` é load-bearing.** Distingue automático de humano; sustenta rate limit,
-  painel e anti-eco. Proteja-o contra sobrescrita pelo eco (primeira-gravação-vence).
-- **Deploy seguro antes das chaves.** A cadeia de LLM sempre termina num provedor-piso; sem as
-  chaves premium, o comportamento é idêntico ao antigo. Dá para subir o código e provisionar as
-  chaves depois.
+## Critérios de aceite
 
-## Gotchas (cicatrizes da implementação de referência)
+- [ ] Webhook inválido só consulta o resolvedor mínimo de segredo; não abre banco de negócio, não
+      toca schema e não persiste evento
+- [ ] Duplicata do mesmo evento produz um único resultado terminal
+- [ ] Evento atrasado/fora de ordem não move a última inbound para trás
+- [ ] IDs técnicos são escopados por tenant, provedor e conta do canal
+- [ ] Duas execuções da mesma inbound geram uma intenção lógica
+- [ ] Inbound nova durante a LLM invalida a resposta velha sem perder a nova
+- [ ] Dois dispatchers não entregam a mesma intenção
+- [ ] Queda após possível aceite remoto vira `unknown` e reconciliação, não retry cego
+- [ ] Texto idêntico em duas saídas não causa adoção errada de eco
+- [ ] Humano pausa; agente, receipt e provider echo não fingem atividade humana
+- [ ] Envio humano fora do sistema é proibido, integrado ou tratado como risco explícito
+- [ ] Plano, módulo, modo, pausa, opt-out, blocklist, horário, conexão e quota são relidos no final
+- [ ] Revogação/takeover antes de `sending` cancela; in-flight recebe `do_not_retry` e reconciliação
+- [ ] Resposta parcial atualiza perguntas/claims de outbound somente com bolhas confirmadas
+- [ ] Inbound, takeover ou opt-out entre bolhas interrompe as partes restantes
+- [ ] Preço, desconto, disponibilidade e compromisso são validados contra fonte canônica
+- [ ] Pedido de parar registra revogação/supressão e não é retomado automaticamente
+- [ ] Acesso cruzado falha fechado e não revela a existência do registro
+- [ ] GET do painel não envia, repara, migra schema pesado nem executa worker
+- [ ] Logs e DTOs não contêm segredo, PII, prompt, resposta ou erro bruto
+- [ ] Memória/exemplos têm finalidade, versão, proveniência, TTL, correção e expurgo testável
+- [ ] Testes sem credencial aparecem como `skipped`, não como aprovação falsa
+- [ ] Pelo menos um caminho real é ensaiado em tenant, instância e destinatários controlados
+- [ ] Shadow, canário, métricas, kill switch e rollback foram provados antes da expansão
+- [ ] Amostra, SLAs, tolerância de `unknown`, heartbeat e gatilhos de rollback foram definidos
 
-- **"Ativei e não respondeu"** quase sempre é (a) duplo opt-in não salvo (perfil "meio ligado"),
-  (b) conversa pausada como `human_takeover` sem caminho de despausar, ou (c) canal desconectado.
-  O **estado efetivo com blockers** existe para diagnosticar isso na cara do dono.
-- **O eco do provedor pausa o agente por engano** se a adoção/guarda não casar (texto alterado,
-  atraso > 180s, marcador `source` apagado). Comparação de texto **byte-a-byte** e marcador
-  intacto são obrigatórios.
-- **Regenerar o id placeholder** (quando o provedor não devolve id) faz payload e chave divergirem
-  e quebra a adoção de eco. Gere o hex **uma vez** e reuse.
-- **DDL faz commit implícito** — rode o setup de schema fora de transação; senão o rollback de um
-  teste não desfaz nada.
-- **`SHOW COLUMNS … LIKE ?` quebra com prepared no MySQL 5.7** e **`REGEXP_REPLACE` não existe**
-  lá — use `INFORMATION_SCHEMA` com placeholders e faça normalização de telefone/texto na
-  aplicação. Nunca use um "coluna existe?" que engole exceção.
-- **A memória é entrada não-confiável** — normalize (allowlist + truncamento + cap de tamanho) na
-  leitura E na escrita; pode vir corrompida do banco ou envenenada pelo LLM.
-- **Sanitização pode zerar a resposta** — se a limpeza anti-vazamento esvazia o texto e o modelo
-  tinha respondido, prefira o **silêncio** a mandar texto inseguro.
-- **Detecção de intenção é regex (não NLU)** sobre texto normalizado sem acento — gírias fora dos
-  padrões podem não disparar fechamento/pedido-de-humano. É lista de padrões, não compreensão.
-- **(Treino de voz) LGPD falha nos detalhes**: senha descartada só no parse vaza no staging;
-  dígitos separados por espaço furam o scrub de CPF; scrubar data/preço quebra a análise;
-  truncamento global de resposta corta o JSON grande da extração; loop de consolidação preso se
-  não trata `applied`/`failed`. Ver [treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md).
+## Entrega esperada
 
-## Checklist de verificação (mobile + desktop no painel)
+Produza:
 
-- [ ] Perfil salvo em "autônomo" força habilitado=1/aprovação=0 (sem estado "meio ligado")
-- [ ] O selo de estado bate com o runtime: mostra "Em silêncio" + blocker correto quando não responde
-- [ ] Grupo do WhatsApp → agente nunca responde
-- [ ] Contato na blocklist → agente nunca responde (match tolera o 9º dígito)
-- [ ] Duas mensagens picadas em sequência → o agente responde **uma vez**, com o contexto completo
-- [ ] Reprocessar o mesmo webhook → não gera resposta duplicada (idempotência)
-- [ ] Dado informado no início da conversa não é re-perguntado 30+ mensagens depois (memória durável)
-- [ ] Cliente diz "quero fechar" → resposta determinística + pausa `cliente_quer_fechar` + tarefa na fila
-- [ ] Objeção de preço → escala para o modelo forte; "vou pensar" sem preço mostrado → não escala
-- [ ] Agenda consultada: o desfecho real aparece na mesma mensagem (sem "vou verificar" solto)
-- [ ] Resposta humana pausa o agente; a resposta do próprio agente NÃO se auto-pausa (anti-eco)
-- [ ] Canal desconectado → não gasta LLM, avisa o dono, entra na fila "sem resposta"
-- [ ] Toda cadeia de LLM cai → mensagem-ponte (1x/6h), nunca vácuo
-- [ ] Cada inbound processada gera 1 linha de decisão (auditoria)
-- [ ] "Conversas sem resposta" oferece 1 ação certa por item (reenviar/reativar/ligar/conectar)
-- [ ] Uso/custo de cada chamada instrumentado (skill medidor-uso-ia)
-- [ ] Testes de lógica pura passam sem rede/banco; smoke ao vivo pula provedor sem chave
-- [ ] Rótulos do painel sem jargão técnico (o dono é não-técnico)
-- [ ] (Se treino de voz) os 4 contratos valem, com LGPD inviolável testada nos dois lados (remove documento/senha; preserva data/preço) — checklist próprio em [treino-de-voz-por-conversas.md](references/treino-de-voz-por-conversas.md)
+1. mapa ponta a ponta com entrypoints e ownership;
+2. schema/migrações de inbox, ledger, mensagens, memória, outbox e auditoria;
+3. adapters de provedor, domínio, locale e runtime;
+4. motor de política e grounding determinístico;
+5. pipeline concorrente e recuperável de inbound/outbound;
+6. painel read-only com ações administrativas explícitas;
+7. matriz de retenção, consentimento, direitos e resposta a incidente;
+8. testes de lógica, contrato, corrida, falha e ensaio controlado;
+9. relatório de blockers e plano shadow para piloto.
 
-## Saída esperada ao final
-
-1. **Pipeline de webhook** com ACK rápido e ingestão idempotente.
-2. **Responder autônomo** com a sequência completa de travas, começando em modo aprendizado.
-3. **Memória durável** por conversa e extração determinística de fatos.
-4. **Roteamento multi-LLM** com fallback e redação de PII, instrumentado pela skill medidor-uso-ia.
-5. **Prompt de vendedor consultivo** com guardrails, follow-through e fechamento determinístico.
-6. **Painel de controle** com estado efetivo, log de decisões, fila "sem resposta", clientes
-   atendidos e alertas — desktop **e** mobile.
-7. **Testes** nas 3 camadas + cada bug reproduzido como caso.
-8. **README/PR** explicando como ligar o autônomo, provisionar chaves de provedor e estender as
-   políticas do perfil.
-
-Se algum item ficar de fora do escopo, **declare explicitamente** — um agente autônomo sem as
-travas é pior que um sem agente, porque age com autoridade sobre dinheiro e sobre o cliente.
-
-## Notas finais
-
-- **Reuse antes de criar.** Se o projeto já tem envio de mensagem, sistema de notificações,
-  auth/CSRF, um cliente HTTP — use-os. Não introduza uma stack paralela.
-- **Comece cauteloso.** Modo aprendizado → autônomo com aprovação → autônomo pleno. Ligue por
-  conta/conversa antes de ligar para todos.
-- **Instrumente desde o dia 1.** Sem o log de decisões e o medidor de uso, você fica cego sobre o
-  que o agente fez e quanto custou.
+Declare qualquer item fora do escopo. Não descreva como “pronto para autonomia” enquanto outbox,
+gates frescos, horário, deadline LLM, privacidade, segredo por instância, ensaio real e rollback
+continuarem pendentes.

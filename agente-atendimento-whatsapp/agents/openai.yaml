@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agente autônomo de WhatsApp"
+  short_description: "Projeta atendimento autônomo confiável no WhatsApp"
+  default_prompt: "Use $agente-atendimento-whatsapp para auditar ou implementar um agente autônomo de WhatsApp com segurança, idempotência, privacidade e rollout em modo shadow."
