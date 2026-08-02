@@ -5,7 +5,7 @@ responder duas vezes, responder mensagem velha, entrar em loop, responder num gr
 um atendimento humano, ou queimar tokens gerando resposta que não pode ser entregue. As travas
 abaixo blindam contra cada um desses casos.
 
-Referência: `whatsapp_agent_autoreply()` em `adm/whatsapp/backend/agent_responder.php:417` +
+Referência histórica: `whatsapp_agent_autoreply()` em `adm/whatsapp/backend/agent_responder.php` +
 o gate/pausas/blocklist em `adm/whatsapp/backend/ai_training.php`.
 
 ## Contrato da função central
@@ -22,87 +22,101 @@ webhook** (uma exceção vira decisão `erro_interno`).
 
 A ordem não é estética: coisas baratas e conservadoras primeiro; o que gasta LLM por último.
 
-| # | Guarda | Motivo de silêncio | Porquê |
+| # | Guarda/ação | Motivo de silêncio | Porquê |
 |---|---|---|---|
-| 1 | IDs de tenant/conversa válidos | `conversa_invalida` | Abortar cedo. |
-| 2 | Texto não vazio (normaliza UTF-8, trim) | `mensagem_sem_texto` | Áudio/imagem/sticker sem texto não disparam o agente. |
-| 3 | Módulo ligado (canal conectado ao tenant) | `modulo_desligado` | Sem canal de saída, não há como responder. |
-| 4 | **Duplo/triplo opt-in do perfil** | `perfil_nao_autonomo` | `mode==='autonomous' && autonomous_enabled && !require_approval` — as três flags têm que concordar. |
-| 5 | **Gate de conversa** (grupo → blocklist → pausa) | `conversa_bloqueada:<motivo>` | Detalhado abaixo. |
-| 6 | Cliente pediu humano (regex) | (pausa + handoff) | Respeitar o pedido humano tem prioridade sobre gerar mais IA. |
-| 7 | **LOCK por conversa** (timeout 8s) | `lock_indisponivel` / `outra_resposta_em_andamento` | Serializa eventos concorrentes da mesma conversa. Liberado em `finally`. |
-| 8 | É a última inbound? | `mensagem_nao_e_a_ultima` | Coalesce de mensagens picadas; quem processa a última responde com contexto completo. |
-| 9 | Sem outbound posterior (idempotência) | `ja_respondida` | Retry de webhook / evento duplicado. |
-| 10 | Limite diário por conversa (40) | `limite_diario_conversa` | Anti-loop/anti-spam com um cliente. **Fail-closed.** |
-| 11 | Limite horário por tenant (120) | `limite_hora_tenant` | Proteção global do provedor. **Fail-open** (ver abaixo). |
-| 12 | Pré-check de saúde da conexão | `whatsapp_desconectado` | Não gastar token gerando resposta que não pode ser entregue. |
-| 13 | Histórico não vazio (janela 30) | `sem_historico` | Precisa de contexto para responder. |
-| 14 | Cliente quer fechar? (regex) | (fechamento determinístico) | Fechamento não pode ser alucinado → sai do LLM. |
-| — | *(gera resposta: tier → LLM → sanitiza → follow-through)* | `sem_resposta_segura` / ponte | Ver as outras references. |
-| 15 | Re-checa corrida pós-geração | `mensagem_nova_durante_geracao` | O cliente pode ter escrito outra coisa enquanto o modelo gerava. |
-| 16 | Envio (`source=ai_agent`, `pause_agent=false`) | — | Falha de envio → notifica dono + devolve texto p/ reenvio. |
-| 17 | Atualiza memória durável | — | Funde fatos, marca perguntas feitas, incrementa contador. |
+| 1 | IDs/ownership de tenant, conversa e inbound | `conversa_invalida` | Abortar cedo e impedir acesso cruzado. |
+| 2 | Texto acionável normalizado | `mensagem_sem_texto` | Mídia sem legenda não dispara resposta textual. |
+| 3 | Módulo + entitlement/plano | `modulo_ou_plano_bloqueado` | Produto não autorizado não cria efeitos nem gasta IA. |
+| 4 | Modo efetivo do perfil | `perfil_nao_autonomo` | `off`/`shadow` não enviam; flags derivadas precisam concordar. |
+| 5 | Gate de conversa: grupo → opt-out/supressão → blocklist → pausa | `conversa_bloqueada:<motivo>` | Respeitar destinatário, escopo e intervenção humana. |
+| 6 | Opt-out ou pedido de humano | supressão ou handoff + pausa | Tem prioridade sobre qualquer geração. |
+| 7 | Horário/fuso/política de ausência | `fora_do_horario` | Não responder em horário indesejado; ausência é determinística. |
+| 8 | Orçamento de geração da request | `geracao_ja_consumida` | Uma geração lógica por request; sem recursão/coalescência cara. |
+| 9 | **Lock de geração por inbound** | `geracao_em_andamento` | Duas requests não geram para a mesma mensagem; inbound seguinte continua livre. |
+| 10 | É a última inbound? | `mensagem_nao_e_a_ultima` | Resposta velha não compete com a mensagem mais nova. |
+| 11 | Sem outbound/outbox posterior | `ja_respondida` | Retry de webhook não duplica intenção. |
+| 12 | Rate limit por conversa + global | `limite_atingido` | Somar todo outbound; política de indisponibilidade explícita. |
+| 13 | Saúde da conexão/webhook | `whatsapp_indisponivel` | Não gastar LLM sem caminho de entrega. |
+| 14 | Histórico/memória válidos | `sem_contexto` | Normalizar memória não confiável antes do prompt. |
+| 15 | Intenção crítica pela `CommitmentPolicy` | resposta segura, ação tipada ou handoff | Dinheiro/contrato não dependem do LLM. |
+| — | Gerar: tier → deadline global → sanitizar → follow-through | `sem_resposta_segura` / ponte | Uma geração lógica, fallback dentro do orçamento. |
+| 16 | **Recarregar todos os gates** | `estado_alterado_durante_geracao` | Plano, modo, pausa, blocklist, horário e conexão podem mudar. |
+| 17 | **Lock curto de entrega por conversa** | `entrega_em_andamento` | Serializar envio, insert do webhook/eco e adoção. |
+| 18 | Repetir última-inbound/dedupe sob lock | `resposta_obsoleta` | Fechar a corrida imediatamente antes da entrega. |
+| 19 | Criar/obter outbox idempotente e entregar | — | Persistir intenção antes do I/O e reconciliar aceite desconhecido. |
+| 20 | Atualizar memória/auditoria com o entregue | — | Bolha parcial não pode registrar o texto inteiro. |
 
-Do passo 7 ao 17 tudo roda **dentro do lock**, liberado sempre no `finally`.
+Segurar o lock de geração até concluir a geração/intenção daquela inbound, sempre liberando em
+`finally`. Não segurar o lock de conversa durante LLM. Adquirir o lock de entrega apenas para a
+janela final, reler o estado e criar/entregar a outbox; liberar em `finally`.
 
-## O gate de conversa (ordem: grupo → blocklist → pausa)
+## O gate de conversa (ordem: grupo → supressão → blocklist → pausa)
 
 `can_agent_use_conversation(tenant, conversation)` decide se o agente pode agir naquela
 conversa, nesta ordem:
 1. **Grupo/broadcast → bloqueia.** Grupo não é atendimento 1:1; responder é ruído/risco.
-2. **Blocklist → bloqueia.** Contato silenciado pelo dono (ver abaixo).
-3. **Pausa → bloqueia**, a menos que a pausa tenha expirado — nesse caso o **auto-resume é
+2. **Opt-out/supressão → bloqueia.** Pedido do destinatário nunca é removido por retomada automática.
+3. **Blocklist → bloqueia.** Contato silenciado pelo dono (ver abaixo).
+4. **Pausa → bloqueia**, a menos que a pausa tenha expirado — nesse caso o **auto-resume é
    *lazy*** (acontece na própria checagem, sem cron): se `pause_expired()` e o resume der certo,
    `allowed=true`.
 
 Reuse esse gate: a mesma função alimenta o runtime e o painel.
 
-## Duplo opt-in — por que três flags
+## Intertravamento de ativação do dono
 
-O envio automático só sai quando o dono **deliberadamente** colocou o agente em modo autônomo
-E sem trava de aprovação. Isso vira a conjunção `mode==='autonomous' && autonomous_enabled &&
-!require_approval`.
+O envio automático só sai quando um administrador **deliberadamente** coloca o agente em modo
+`autonomous`. Isso é autorização da feature, não consentimento do destinatário nem base legal para
+mensagem proativa.
 
-**Regra de ouro:** o dono edita **um único "modo"** (`off` / `shadow` / `autonomous`); as flags
-técnicas são **derivadas no save** (`autonomous_enabled = (mode==='autonomous')`,
-`require_approval = !autonomous_enabled`). Assim nunca existe estado "meio ligado" (autônomo com
-aprovação pendente = agente mudo mostrando "ligado"). Perfis legados gravados "meio ligados"
-precisam ser **salvos de novo** — o painel mostra isso como blocker.
+**Regra de ouro:** o administrador edita **um único modo** (`off|shadow|autonomous`). Migre flags
+legadas num ciclo controlado, derive-as do modo e impeça autonomia até a migração terminar. Não
+espere o usuário “salvar novamente” nem mantenha duas autoridades concorrentes.
 
-## Fail-open vs fail-closed (decisão consciente de blast radius)
+## Fail-open vs fail-closed (decisão explícita de blast radius)
 
-- **Limite por conversa/dia (40) = fail-closed.** Se falhar, protege por padrão.
-- **Limite por tenant/hora (120) = FAIL-OPEN.** Se a contagem lançar exceção (erro de infra), o
-  catch loga e **retorna 0 — não bloqueia**. Comentário no código: *"Falha de SQL não pode
-  silenciar o tenant inteiro; o teto diário por conversa continua valendo."* Um erro numa
-  contagem **global** não pode calar o atendimento de **todos** os clientes; o teto por conversa
-  segura o dano. Não "conserte" esse catch para fechar.
+- Ownership, entitlement, modo, pausa, blocklist, horário, lock de entrega e última inbound são
+  **fail-closed**. Falha em provar autorização nunca libera envio.
+- Limites somam todo outbound iniciado localmente e incorporam atividade externa observada por eco.
+  Se o canal externo não é observável em tempo hábil, reserve margem pessimista ou bloqueie esse
+  caminho durante autonomia.
+- Em atendimento autônomo, preferir limiter **fail-closed** quando o estado está indisponível. Se o
+  negócio não puder aceitar silêncio global, usar fallback deliberado de volume muito baixo + teto
+  por conversa + alerta imediato; documentar a escolha e testar a falha.
+- Métrica/observabilidade pode ser best-effort; autorização de envio não.
+
+Valores como 40/dia e 120/h são exemplos da implementação de referência, não defaults universais.
+Dimensionar por política do provedor, negócio, país, tipo de canal e risco.
 
 ## Pausas e retomada
 
-- **Pausar** seta `agent_paused=1`, `agent_paused_at=NOW()`, `agent_paused_reason`. Se o motivo é
-  `cliente_pediu_humano`/`cliente_quer_fechar`, avisa o dono (dedup diário).
-- **Motivos e expiração** (a parte sutil):
-  - `human_takeover` — nasce **toda vez que um humano envia manualmente** (todo outbound pausa,
-    ver anti-eco). Expira se `resume_hours>0 && decorrido >= resume_hours`.
-  - `cliente_pediu_humano` — só expira se `resume_hours>0`, decorrido `>= max(24h, resume_hours)`,
-    **E prova no banco de que ninguém da equipe respondeu** desde a pausa (zero outbound sem
-    `source=ai_agent` após `paused_at`). Se alguém respondeu, o agente fica quieto.
-  - `cliente_quer_fechar` — **NUNCA expira sozinho.** Só a equipe reativa.
-- `agent_resume_hours ∈ {0, 12, 24, 48, 72, 168}` (0 = nunca sozinho).
+- **Pausar** grava estado, instante, motivo e origem. Motivos mínimos:
+  - `human_takeover`: um humano enviou manualmente; só expira conforme política explícita e após
+    provar que não houve nova atividade humana desde a pausa;
+  - `customer_requested_human`: default de retomada manual; qualquer auto-resume exige política,
+    janela mínima e prova de ausência de resposta da equipe;
+  - `critical_handoff`: default de retomada manual até a ação de negócio terminar;
+  - `policy_or_incident`: retomada somente por administrador/kill-switch.
+- Parametrize prazos por domínio e risco. Os valores usados num projeto histórico não são defaults.
 - **Auto-resume é *lazy*:** avaliado só na próxima inbound. Se o cliente nunca mais escreve, a
   conversa permanece pausada na prática, mesmo "vencida".
 
-## Blocklist ("quem o agente não atende")
+## Supressão e blocklist
 
-- Guardada como **JSON no perfil** (`agent_blocklist_json`), não em tabela. Máximo **200**
-  entradas `{number, label, added_at}`.
-- Match tolera o **nono dígito** brasileiro: dois números com mesmo DDD e mesmos 8 dígitos finais
-  são o mesmo (ex.: `55DD9XXXXYYYY` vs `55DDXXXXYYYY`). Generalize para o seu país conforme a
-  regra local de numeração.
-- **Add/remove tocam SÓ essa coluna** (`INSERT … ON DUPLICATE KEY UPDATE agent_blocklist_json =
-  VALUES(...)`), nunca via o save do perfil inteiro. Silenciar um contato é ação isolada e não
-  deve reescrever a persona do agente.
+- **Supressão do destinatário** registra pedido de parar/revogação, finalidade, origem e data.
+  Cancela fila/outbox apenas antes de `sending`; in-flight recebe `do_not_retry` e reconciliação.
+  Nunca é removida por resume automático.
+- **Blocklist operacional** é a decisão do dono de não automatizar um contato. Não substitui a
+  supressão nem a prova exigida para comunicação proativa.
+
+- Guardar em tabela tenant-scoped ou documento allowlisted com limite explícito. Cada entrada tem
+  número canônico, rótulo opcional e data.
+- Normalizar conforme o plano de numeração do país. Para Brasil, testar variação com/sem nono
+  dígito sem transformar a heurística em match global por últimos dígitos.
+- Add/remove alteram somente a blocklist, nunca salvam o perfil inteiro. Silenciar um contato é
+  ação isolada e não deve reescrever persona/modo.
+- Aplicar no runtime, aprendizado, fila, retry e envio direto automático. Retomar conversa não pode
+  remover blocklist implicitamente.
 
 ## Sanitização de saída (antes de enviar)
 
@@ -111,39 +125,40 @@ estrutura interna** (nomes de campos internos, JSON do contexto, "system prompt"
 chars. Se a limpeza **esvaziar** o texto e o modelo tinha respondido → `sem_resposta_segura`
 (silêncio). Texto inseguro nunca vai ao cliente; o silêncio é intencional.
 
+Sanitização textual não valida fatos. Depois dela, conferir valores, moeda, disponibilidade,
+desconto, prazo, compromisso e chamadas de ferramenta contra fontes canônicas. Divergência usa
+resposta determinística segura ou handoff; não “corrija” com uma segunda LLM.
+
 ## Rede de segurança sem vácuo
 
-Se toda a cadeia de modelo falhar (nem fallback determinístico serve), envia uma **mensagem-ponte
-fixa** ("Recebi sua mensagem! Já te retorno…"), **no máximo 1x a cada 6h por conversa**,
-controlada por um timestamp `last_hold_at` na memória durável. Tem anti-corrida (se chegou inbound
-mais nova, não envia). O cliente nunca fica sem retorno.
+Se toda a cadeia de modelo falhar, considere uma **mensagem-ponte fixa**, sob os mesmos gates,
+horário, opt-out, quota, lock e outbox. A política define o cooldown por conversa; registre a
+intenção para não duplicar. Se não for seguro ou autorizado enviar, permaneça em silêncio e alerte a
+equipe. Não prometa ausência de vácuo sacrificando autorização.
 
 ## Checklist portátil de guardas (para qualquer canal, qualquer stack)
 
-Antes de o agente **enviar** qualquer resposta, satisfaça, nesta ordem:
+Antes de o agente **entregar** qualquer resposta:
 
-1. Entrada válida (tenant + conversa).
-2. Mensagem acionável (texto normalizado; mídia sem texto = silêncio).
-3. Canal de saída disponível.
-4. Opt-in explícito por conjunção de flags derivadas de **um único modo**.
-5. Gate: não-grupo → não-silenciado → não-pausado (com auto-resume *lazy*).
-6. Pedido de humano tem prioridade → pausa + handoff + para.
-7. Lock por (tenant, conversa), timeout curto, liberar em finally.
-8. É a última mensagem do cliente? Senão, desiste.
-9. Já existe resposta posterior? Então não responde de novo.
-10. Teto por conversa/dia (**fail-closed**).
-11. Teto global por hora (**fail-open** — erro de medição não cala todos).
-12. Pré-check de entregabilidade **antes** de gastar LLM.
-13. Momento crítico (fechamento) sai do LLM → texto determinístico + pausa + tarefa humana.
-14. Sanitiza a saída; prefira silêncio a texto inseguro.
-15. Rede de segurança sem vácuo (ponte fixa com rate-limit próprio).
-16. Re-checa corrida logo antes de enviar.
-17. Falha de envio ≠ perda: notifica operador + guarda o texto para reenvio.
-18. Marca a própria saída (`source=agent`) e **não** se auto-pausa; adota ecos do provedor.
-19. Audita toda decisão (enviado/silenciado + motivo), sem derrubar o fluxo.
-20. Memória durável fora da janela (não re-perguntar).
+1. Provar tenant, conversa, inbound e ownership.
+2. Confirmar mensagem acionável.
+3. Resolver módulo, plano/entitlement e modo efetivo.
+4. Aplicar grupo, opt-out/supressão, blocklist, pausa, pedido humano e horário.
+5. Consumir um orçamento de geração da request.
+6. Adquirir lock por inbound; provar que é a última e ainda não tem resposta/outbox.
+7. Aplicar limites e pré-check de conexão/webhook.
+8. Tratar intenção crítica pela `CommitmentPolicy`; gerar só o texto conversacional permitido.
+9. Sanitizar e validar saída; fallback cabe no deadline global.
+10. Reler todos os gates após a LLM.
+11. Adquirir lock curto de entrega por conversa.
+12. Repetir última-inbound e dedupe sob o lock.
+13. Criar/obter outbox com chave idempotente antes do I/O externo.
+14. Reconciliar aceite desconhecido/eco antes de retry.
+15. Persistir bolhas realmente entregues e atualizar memória somente com elas.
+16. Marcar `source=agent`; eco não pausa, humano posterior pausa.
+17. Auditar categoria/fingerprint/outbox sem conteúdo sensível.
+18. Liberar todos os locks em `finally`; falha deixa intenção recuperável, não envia por fora.
 
-Constantes de volume da referência (sobrescrevíveis): `MAX_REPLIES_PER_CONVERSATION_DAY=40`,
-`MAX_REPLIES_PER_TENANT_HOUR=120`, `HISTORY_WINDOW=30`. Fixos no código: lock **8s**, LLM timeout
-**20s**/retries **1**, ponte **1x/6h**, adoção de eco **10 min**, eco recente do agente **180s**,
-sanitização **900** chars, retenção de decisões **30 dias** (~2% amostrado).
+Trate números da implementação de referência apenas como exemplos. Parametrize janela de histórico,
+limites, cooldown, tamanho da resposta, deadline e retenção; teste mínimos/máximos e o pior caso do
+projeto alvo.
