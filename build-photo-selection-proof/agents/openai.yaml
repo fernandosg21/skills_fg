@@ -1,0 +1,4 @@
+interface:
+  display_name: "Seleção de Fotos"
+  short_description: "Crie galerias seguras para seleção de fotos"
+  default_prompt: "Use $build-photo-selection-proof para implementar ou auditar esta seleção de fotos."

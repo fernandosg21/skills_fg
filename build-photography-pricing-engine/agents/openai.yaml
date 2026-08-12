@@ -1,0 +1,4 @@
+interface:
+  display_name: "Precificação Fotográfica"
+  short_description: "Calcule preço mínimo margem impostos e capacidade"
+  default_prompt: "Use $build-photography-pricing-engine para implementar ou auditar este motor de precificação."

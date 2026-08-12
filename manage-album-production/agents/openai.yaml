@@ -1,0 +1,4 @@
+interface:
+  display_name: "Produção de Álbuns"
+  short_description: "Gerencie pedidos custos prazos e etapas de álbuns"
+  default_prompt: "Use $manage-album-production para implementar ou auditar esta produção de álbuns."
