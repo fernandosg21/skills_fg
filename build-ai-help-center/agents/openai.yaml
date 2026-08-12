@@ -1,0 +1,4 @@
+interface:
+  display_name: "Central de Ajuda com IA"
+  short_description: "Respostas ancoradas em uma base de ajuda curada"
+  default_prompt: "Use $build-ai-help-center para criar uma Central de ajuda ancorada em documentação confiável."

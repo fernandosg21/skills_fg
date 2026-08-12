@@ -1,0 +1,4 @@
+interface:
+  display_name: "Controle de Módulos por Tenant"
+  short_description: "Liberação pública, exclusiva ou desligada por módulo"
+  default_prompt: "Use $manage-tenant-module-access para criar um controle central de módulos por tenant."

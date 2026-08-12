@@ -1,0 +1,4 @@
+interface:
+  display_name: "Autenticação e Assinatura SaaS"
+  short_description: "Cadastro, trial, login, planos e cobrança segura"
+  default_prompt: "Use $build-saas-auth-subscription-lifecycle para implementar o ciclo de cadastro, trial e assinatura deste SaaS."

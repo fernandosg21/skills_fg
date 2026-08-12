@@ -1,0 +1,4 @@
+interface:
+  display_name: "SaaS Multi-tenant Seguro"
+  short_description: "Isolamento, ownership e autorização por tenant"
+  default_prompt: "Use $secure-multitenant-saas para implementar isolamento multi-tenant seguro neste sistema."
