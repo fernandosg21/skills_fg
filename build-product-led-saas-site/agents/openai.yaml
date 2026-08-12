@@ -1,0 +1,4 @@
+interface:
+  display_name: "Site público orientado pelo produto"
+  short_description: "Venda o SaaS com evidências reais e rápidas"
+  default_prompt: "Use $build-product-led-saas-site para criar um site público rápido e fiel ao produto."

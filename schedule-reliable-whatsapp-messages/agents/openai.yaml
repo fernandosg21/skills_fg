@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mensagens agendadas no WhatsApp"
+  short_description: "Processe lembretes sem atrasos ou duplicações"
+  default_prompt: "Use $schedule-reliable-whatsapp-messages para implementar uma fila confiável de mensagens agendadas."

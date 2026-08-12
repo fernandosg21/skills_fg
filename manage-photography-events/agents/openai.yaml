@@ -1,0 +1,4 @@
+interface:
+  display_name: "Gerenciar eventos"
+  short_description: "Coordene todo o ciclo operacional do evento"
+  default_prompt: "Use $manage-photography-events para implementar o ciclo completo dos eventos deste sistema."

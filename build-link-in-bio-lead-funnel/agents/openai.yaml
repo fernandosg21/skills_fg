@@ -1,0 +1,4 @@
+interface:
+  display_name: "Link na bio com CRM"
+  short_description: "Converta visitas da bio em leads mensuráveis"
+  default_prompt: "Use $build-link-in-bio-lead-funnel para criar uma página de link na bio integrada ao CRM."

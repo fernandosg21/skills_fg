@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feedback dentro do produto"
+  short_description: "Capture e organize relatos com segurança"
+  default_prompt: "Use $collect-in-app-product-feedback para adicionar um fluxo seguro de feedback dentro deste produto."

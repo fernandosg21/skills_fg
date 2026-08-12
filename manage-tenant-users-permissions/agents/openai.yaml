@@ -1,0 +1,4 @@
+interface:
+  display_name: "Usuários e permissões"
+  short_description: "Proteja acessos e papéis dentro de cada tenant"
+  default_prompt: "Use $manage-tenant-users-permissions para implementar usuários, papéis e permissões seguros neste SaaS."

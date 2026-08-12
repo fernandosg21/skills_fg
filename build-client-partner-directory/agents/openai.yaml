@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diretório de parceiros"
+  short_description: "Organize indicações confiáveis para clientes"
+  default_prompt: "Use $build-client-partner-directory para criar um diretório seguro de parceiros recomendados."

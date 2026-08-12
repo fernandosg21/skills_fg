@@ -1,0 +1,4 @@
+interface:
+  display_name: "Central de notificações"
+  short_description: "Entregue alertas úteis sem duplicidade"
+  default_prompt: "Use $build-in-app-notification-center para criar uma central de notificações acionável e confiável."
