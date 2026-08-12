@@ -1,0 +1,4 @@
+interface:
+  display_name: "Galeria Fotográfica PWA"
+  short_description: "Entregue galerias privadas com PWA e downloads seguros"
+  default_prompt: "Use $build-secure-photo-gallery-pwa para implementar ou auditar esta galeria fotográfica."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Proposta Pública"
+  short_description: "Crie propostas públicas calculadas e rastreáveis"
+  default_prompt: "Use $build-public-proposal-flow para implementar ou auditar este fluxo de proposta pública."
