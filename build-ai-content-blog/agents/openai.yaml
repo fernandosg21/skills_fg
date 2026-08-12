@@ -1,0 +1,4 @@
+interface:
+  display_name: "Blog com Conteúdo por IA"
+  short_description: "Gere artigos com fontes curadas revisão e SEO"
+  default_prompt: "Use $build-ai-content-blog para implementar ou auditar este blog com geração assistida por IA."

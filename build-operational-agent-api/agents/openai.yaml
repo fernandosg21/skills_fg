@@ -1,0 +1,4 @@
+interface:
+  display_name: "API para Agente Operacional"
+  short_description: "Exponha automação por token com escopos e auditoria"
+  default_prompt: "Use $build-operational-agent-api para implementar ou auditar esta API para agente operacional."
