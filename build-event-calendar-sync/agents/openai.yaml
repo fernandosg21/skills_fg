@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agenda de Eventos"
+  short_description: "Crie agenda de eventos com conflitos e sincronização"
+  default_prompt: "Use $build-event-calendar-sync para implementar ou auditar esta agenda integrada."
