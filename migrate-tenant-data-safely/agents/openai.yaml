@@ -1,0 +1,4 @@
+interface:
+  display_name: "Migração segura de tenants"
+  short_description: "Exporte, importe e reconcilie sem perda"
+  default_prompt: "Use $migrate-tenant-data-safely para planejar e validar esta migração de tenant."

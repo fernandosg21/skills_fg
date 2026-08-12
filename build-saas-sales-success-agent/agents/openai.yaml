@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agente SaaS de Vendas"
+  short_description: "Automatize vendas onboarding retenção e opt-out"
+  default_prompt: "Use $build-saas-sales-success-agent para implementar ou auditar este agente SaaS de vendas e sucesso."

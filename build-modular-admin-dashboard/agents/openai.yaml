@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dashboard Administrativo Modular"
+  short_description: "Blocos, presets e preferências por usuário"
+  default_prompt: "Use $build-modular-admin-dashboard para criar uma tela inicial modular e segura neste painel."

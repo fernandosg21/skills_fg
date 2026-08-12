@@ -1,0 +1,4 @@
+interface:
+  display_name: "Financeiro para Fotografia"
+  short_description: "Construa financeiro de caixa DRE previsões e eventos"
+  default_prompt: "Use $build-photography-finance para implementar ou auditar este financeiro de fotografia."

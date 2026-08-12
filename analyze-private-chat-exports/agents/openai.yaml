@@ -1,0 +1,4 @@
+interface:
+  display_name: "Análise Privada de Conversas"
+  short_description: "Analise exports de chat com proteção de dados"
+  default_prompt: "Use $analyze-private-chat-exports para implementar ou auditar esta análise privada de conversas."

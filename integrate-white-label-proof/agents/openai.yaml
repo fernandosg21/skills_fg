@@ -1,0 +1,4 @@
+interface:
+  display_name: "Integração white-label de Proof"
+  short_description: "Conecte contas, marca e projetos sem duplicar"
+  default_prompt: "Use $integrate-white-label-proof para integrar este módulo de prova ao sistema principal."

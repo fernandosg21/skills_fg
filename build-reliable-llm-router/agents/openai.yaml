@@ -1,0 +1,4 @@
+interface:
+  display_name: "Roteador LLM Confiável"
+  short_description: "Orquestre provedores de IA com cooldown e deadline"
+  default_prompt: "Use $build-reliable-llm-router para implementar ou auditar esta cadeia confiável de LLMs."

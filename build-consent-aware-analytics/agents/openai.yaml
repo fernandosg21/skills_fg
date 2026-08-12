@@ -1,0 +1,4 @@
+interface:
+  display_name: "Analytics com Consentimento"
+  short_description: "Instrumente analytics e marketing sem PII"
+  default_prompt: "Use $build-consent-aware-analytics para implementar ou auditar esta instrumentação com consentimento."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Operação Freelancer"
+  short_description: "Gerencie escala confirmação e acerto de freelancers"
+  default_prompt: "Use $manage-freelancer-operations para implementar ou auditar esta operação de freelancers."

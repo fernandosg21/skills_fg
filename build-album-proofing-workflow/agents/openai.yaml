@@ -1,0 +1,4 @@
+interface:
+  display_name: "Prova de Álbum"
+  short_description: "Crie revisão versionada e aprovação de álbuns"
+  default_prompt: "Use $build-album-proofing-workflow para implementar ou auditar esta prova de álbum."

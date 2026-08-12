@@ -1,0 +1,4 @@
+interface:
+  display_name: "CRM para Fotografia"
+  short_description: "Crie ou audite CRM de fotografia com funil e captação"
+  default_prompt: "Use $build-photography-crm para implementar ou auditar este CRM de fotografia de ponta a ponta."

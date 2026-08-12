@@ -1,0 +1,4 @@
+interface:
+  display_name: "Follow-ups de CRM"
+  short_description: "Automatize follow-ups comerciais com fila segura"
+  default_prompt: "Use $automate-crm-followups para implementar ou auditar esta automação de follow-ups."

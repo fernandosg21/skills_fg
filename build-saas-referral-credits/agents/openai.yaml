@@ -1,0 +1,4 @@
+interface:
+  display_name: "Créditos por Indicação"
+  short_description: "Implemente indicação SaaS com ledger e créditos"
+  default_prompt: "Use $build-saas-referral-credits para implementar ou auditar este programa de indicação."

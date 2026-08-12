@@ -1,0 +1,4 @@
+interface:
+  display_name: "Link de Orçamento"
+  short_description: "Crie links públicos de orçamento integrados ao CRM"
+  default_prompt: "Use $build-public-budget-request para implementar ou auditar este fluxo público de orçamento."

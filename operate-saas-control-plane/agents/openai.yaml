@@ -1,0 +1,4 @@
+interface:
+  display_name: "Plano de controle SaaS"
+  short_description: "Administre tenants e planos com auditoria"
+  default_prompt: "Use $operate-saas-control-plane para implementar um painel seguro de operação deste SaaS."

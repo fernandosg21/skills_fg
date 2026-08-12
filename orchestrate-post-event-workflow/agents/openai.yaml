@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fluxo Pós-evento"
+  short_description: "Orquestre entregas e dependências após cada evento"
+  default_prompt: "Use $orchestrate-post-event-workflow para implementar ou auditar este fluxo pós-evento."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Concurso Fotográfico"
+  short_description: "Crie concurso de fotos com consentimento e júri"
+  default_prompt: "Use $build-photo-contest-platform para implementar ou auditar esta plataforma de concurso."
