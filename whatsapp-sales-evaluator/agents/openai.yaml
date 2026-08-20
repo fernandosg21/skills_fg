@@ -1,0 +1,4 @@
+interface:
+  display_name: "Avaliador de Vendas no WhatsApp"
+  short_description: "Avalie conversas comerciais com score e feedback"
+  default_prompt: "Use $whatsapp-sales-evaluator para avaliar esta conversa comercial do WhatsApp e gerar score, evidências e feedback acionável."
