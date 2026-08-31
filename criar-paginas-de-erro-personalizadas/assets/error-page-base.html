@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>%%CODE%% — %%TITLE%%</title>
+  <link rel="stylesheet" href="../css/error-pages.css">
+</head>
+<body>
+  <main class="error-page" data-error-code="%%CODE%%" aria-labelledby="error-title">
+    <picture class="error-page__art" aria-hidden="true">
+      <source media="(max-width: 47.99rem)" srcset="%%ART_MOBILE%%">
+      <img src="%%ART_DESKTOP%%" alt="">
+    </picture>
+
+    <section class="error-page__content">
+      <img class="error-page__logo" src="%%LOGO%%" alt="%%BRAND%%">
+      <p class="error-page__code">%%CODE%%</p>
+      <h1 class="error-page__title" id="error-title">%%TITLE%%</h1>
+      <p class="error-page__message">%%MESSAGE%%</p>
+      <div class="error-page__actions">
+        <a class="error-page__button" href="%%ACTION_URL%%">%%ACTION_LABEL%%</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
