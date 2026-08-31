@@ -1,0 +1,45 @@
+{
+  "brand": {
+    "name": "Nome da marca",
+    "logo": "../assets/brand/logo.svg"
+  },
+  "art": {
+    "desktop_dir": "../assets/illustrations/desktop",
+    "mobile_dir": "../assets/illustrations/mobile",
+    "extension": "svg"
+  },
+  "errors": [
+    {
+      "code": "403",
+      "title": "Esta área não está liberada para você.",
+      "message": "Sua conta não tem permissão para abrir este conteúdo.",
+      "action_label": "Voltar ao início",
+      "action_url": "/",
+      "art_key": "access-blocked"
+    },
+    {
+      "code": "404",
+      "title": "Esta página não está por aqui.",
+      "message": "O endereço pode ter mudado ou deixado de existir.",
+      "action_label": "Voltar ao início",
+      "action_url": "/",
+      "art_key": "page-not-found"
+    },
+    {
+      "code": "422",
+      "title": "Alguns dados precisam de revisão.",
+      "message": "Confira as informações antes de continuar.",
+      "action_label": "Revisar informações",
+      "action_url": "/",
+      "art_key": "review-data"
+    },
+    {
+      "code": "500",
+      "title": "Algo saiu do previsto por aqui.",
+      "message": "O problema é nosso. Recarregue a página ou volte ao início.",
+      "action_label": "Recarregar página",
+      "action_url": "/",
+      "art_key": "unexpected-problem"
+    }
+  ]
+}
