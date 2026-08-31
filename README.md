@@ -82,6 +82,7 @@ Cada pasta contém uma skill independente. As funcionalidades do Memora System f
 |---|---|
 | [build-photo-contest-platform](./build-photo-contest-platform) | Concurso fotográfico com upload, júri cego, resultado e retenção. |
 | [create-scroll-video-hero](./create-scroll-video-hero) | Hero com vídeo controlado pelo progresso da rolagem. |
+| [criar-paginas-de-erro-personalizadas](./criar-paginas-de-erro-personalizadas) | Páginas de erro humanizadas, responsivas e alinhadas à identidade visual, com HTML acessível, artes separadas e status HTTP reais. |
 | [separar-arte-em-camadas-psd](./separar-arte-em-camadas-psd) | Conversão de arte achatada em PSD organizado por camadas. |
 
 ## Como usar
