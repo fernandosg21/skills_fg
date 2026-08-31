@@ -1,0 +1,4 @@
+interface:
+  display_name: "Páginas de Erro Personalizadas"
+  short_description: "Crie erros humanizados e alinhados à marca"
+  default_prompt: "Use $criar-paginas-de-erro-personalizadas para criar, refatorar ou integrar as páginas de erro deste projeto."
