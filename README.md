@@ -22,6 +22,7 @@ Cada pasta contém uma skill independente. As funcionalidades do Memora System f
 | [onboarding-system](./onboarding-system) | Tour, boas-vindas, guia e ajuda no primeiro acesso. |
 | [build-ai-help-center](./build-ai-help-center) | Central de ajuda curada com respostas de IA ancoradas. |
 | [replicate-update-stories](./replicate-update-stories) | Stories de novidades, classificação editorial e estado de leitura. |
+| [memora-feature-package](./memora-feature-package) | Pacotes espelhados do Memora com validação, gate editorial obrigatório e sincronização segura da fonte do projeto Memora - Posts. |
 | [collect-in-app-product-feedback](./collect-in-app-product-feedback) | Coleta e triagem segura de bugs, sugestões e elogios. |
 | [build-in-app-notification-center](./build-in-app-notification-center) | Alertas in-app deduplicados, acionáveis e multi-canal. |
 

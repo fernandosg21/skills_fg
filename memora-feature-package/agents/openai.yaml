@@ -1,0 +1,4 @@
+interface:
+  display_name: "Memora Feature Package"
+  short_description: "Empacota features e mantém a fonte editorial atualizada"
+  default_prompt: "Use $memora-feature-package para criar e validar o pacote, classificar a mudança editorial, atualizar stories e bases aplicáveis e manter a fonte do projeto Memora - Posts sincronizada."
