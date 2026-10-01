@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "currency": "BRL",
+  "source_snapshot": "2026-10-01",
+  "responsible": "Codex",
+  "cases": [
+    {
+      "id": "parcela_parcial",
+      "given": [
+        "Parcela de R$ 1.000,00, sem outras receitas/despesas.",
+        "Receber R$ 300,00 em dinheiro na conta A."
+      ],
+      "expected": {
+        "cash_in_cents": 30000,
+        "installment_outstanding_cents": 70000,
+        "installment_paid_cents": 30000
+      }
+    },
+    {
+      "id": "parcela_desconto",
+      "given": [
+        "Parcela e contrato de R$ 1.000,00, com R$ 200,00 já recebidos.",
+        "Receber R$ 700,00 e conceder R$ 100,00 de desconto; sem cobrança ativa."
+      ],
+      "expected": {
+        "cash_in_cents": 90000,
+        "installment_due_cents": 90000,
+        "installment_outstanding_cents": 0,
+        "contract_original_cents": 100000,
+        "contract_final_cents": 90000
+      }
+    },
+    {
+      "id": "somente_desconto",
+      "given": [
+        "Parcela de R$ 1.000,00 com R$ 950,00 já recebidos.",
+        "Conceder desconto de R$ 50,00, recebido zero, sem cobrança ativa."
+      ],
+      "expected": {
+        "cash_in_cents": 95000,
+        "installment_outstanding_cents": 0,
+        "new_cash_payment_count": 0,
+        "installment_due_cents": 95000
+      }
+    },
+    {
+      "id": "credito_aplicado",
+      "given": [
+        "Avulsa manual do estúdio de R$ 100,00 já recebida e marcada crédito do cliente C.",
+        "Aplicar R$ 60,00 à parcela de R$ 60,00 de outro evento de C, sem cobrança ativa."
+      ],
+      "expected": {
+        "cash_in_cents": 10000,
+        "credit_available_cents": 4000,
+        "installment_outstanding_cents": 0,
+        "new_cash_payment_count": 0
+      }
+    },
+    {
+      "id": "credito_desfeito",
+      "given": [
+        "Executar o cenário credito_aplicado e desfazer somente sua aplicação."
+      ],
+      "expected": {
+        "cash_in_cents": 10000,
+        "credit_available_cents": 10000,
+        "installment_outstanding_cents": 6000
+      }
+    },
+    {
+      "id": "credito_cliente_errado",
+      "given": [
+        "Crédito de R$ 100,00 de C; tentar aplicar R$ 60,00 em parcela de D."
+      ],
+      "expected": {
+        "operation_rejected": true,
+        "credit_available_cents": 10000,
+        "new_application_count": 0
+      }
+    },
+    {
+      "id": "credito_concorrente",
+      "given": [
+        "Crédito de R$ 100,00 e duas parcelas de R$ 80,00 do mesmo cliente.",
+        "Tentar aplicar R$ 80,00 simultaneamente em cada uma, com valor exato solicitado; uma operação deve falhar."
+      ],
+      "expected": {
+        "successful_operations": 1,
+        "total_applied_cents": 8000,
+        "credit_available_cents": 2000
+      }
+    },
+    {
+      "id": "caixa_periodo_e_saldo",
+      "given": [
+        "Conta A teve entrada de R$ 500,00 antes do mês.",
+        "No mês receber R$ 1.000,00 e pagar R$ 200,00 em A."
+      ],
+      "expected": {
+        "period_result_cents": 80000,
+        "opening_balance_cents": 50000,
+        "closing_balance_cents": 130000
+      }
+    },
+    {
+      "id": "editar_somente_conta",
+      "given": [
+        "Pagamento de R$ 100,00 na conta A, sem outros movimentos.",
+        "Reatribuir esse pagamento à conta B pelo Extrato."
+      ],
+      "expected": {
+        "cash_in_cents": 10000,
+        "account_a_balance_cents": 0,
+        "account_b_balance_cents": 10000,
+        "cash_payment_count": 1
+      }
+    },
+    {
+      "id": "sem_conta_historica",
+      "given": [
+        "Pagamento histórico confirmado de R$ 100,00 sem banco identificado; não atribuir conta padrão."
+      ],
+      "expected": {
+        "unassigned_balance_cents": 10000,
+        "assigned_balance_cents": 0
+      }
+    },
+    {
+      "id": "album_previsto",
+      "given": [
+        "Receita de R$ 1.000,00 e custo automático previsto de álbum de R$ 200,00 no mesmo mês; sem pedido/pagamento."
+      ],
+      "expected": {
+        "cash_out_cents": 0,
+        "firm_payables_cents": 0,
+        "dre_provisions_cents": 20000,
+        "dre_predicted_subset_cents": 20000,
+        "dre_result_cents": 80000
+      }
+    },
+    {
+      "id": "album_efetivado",
+      "given": [
+        "Executar album_previsto e enviar pedido com número, valor R$ 200,00, dentro do mesmo mês; não pagar."
+      ],
+      "expected": {
+        "cash_out_cents": 0,
+        "firm_payables_cents": 20000,
+        "dre_provisions_cents": 20000,
+        "dre_predicted_subset_cents": 0
+      }
+    },
+    {
+      "id": "album_nao_regride",
+      "given": [
+        "Executar album_efetivado e regredir o status do pedido; sincronizar novamente sem pagar."
+      ],
+      "expected": {
+        "firm_payables_cents": 20000,
+        "dre_predicted_subset_cents": 0,
+        "album_effectivated": true
+      }
+    },
+    {
+      "id": "equipe_parcial",
+      "given": [
+        "Dívida automática de equipe de R$ 1.000,00 no mês; pagar R$ 400,00 pelo estúdio via ledger."
+      ],
+      "expected": {
+        "cash_out_cents": 40000,
+        "team_owed_cents": 60000,
+        "dre_provisions_cents": 60000
+      }
+    },
+    {
+      "id": "equipe_excedente",
+      "given": [
+        "Serviço de R$ 600,00; estúdio paga R$ 750,00, aplicando R$ 600,00 e guardando R$ 150,00 como adiantamento."
+      ],
+      "expected": {
+        "cash_out_cents": 75000,
+        "team_owed_cents": 0,
+        "advance_available_cents": 15000
+      }
+    },
+    {
+      "id": "adiantamento_aplicado",
+      "given": [
+        "Adiantamento de R$ 150,00 já pago e serviço futuro de R$ 100,00 do mesmo profissional.",
+        "Aplicar R$ 100,00 do adiantamento no serviço."
+      ],
+      "expected": {
+        "cash_out_cents": 15000,
+        "team_owed_cents": 0,
+        "advance_available_cents": 5000,
+        "new_cash_payment_count": 0
+      }
+    },
+    {
+      "id": "cliente_direto",
+      "given": [
+        "Dívida de serviço de R$ 300,00 e parcela de cliente de R$ 300,00 no evento.",
+        "Cliente paga diretamente ao profissional R$ 300,00, usando baixa sem caixa para a parcela."
+      ],
+      "expected": {
+        "cash_in_cents": 0,
+        "cash_out_cents": 0,
+        "team_owed_cents": 0,
+        "installment_outstanding_cents": 0
+      }
+    },
+    {
+      "id": "salario_ajustado_parcial",
+      "given": [
+        "Salário da competência R$ 1.000,00, gratificação R$ 100,00, desconto R$ 50,00.",
+        "Na mesma competência, pagar R$ 400,00 em dinheiro e baixar R$ 150,00 de crédito válido recebido/pago antes."
+      ],
+      "expected": {
+        "salary_net_cents": 105000,
+        "salary_settled_cents": 55000,
+        "salary_outstanding_cents": 50000,
+        "new_cash_out_cents": 40000,
+        "salary_provision_cents": 50000
+      }
+    },
+    {
+      "id": "salario_competencia",
+      "given": [
+        "Salário de setembro R$ 1.000,00; pagar R$ 400,00 em outubro contra a competência de setembro."
+      ],
+      "expected": {
+        "september_salary_provision_cents": 60000,
+        "september_cash_out_cents": 0,
+        "october_cash_out_cents": 40000
+      }
+    },
+    {
+      "id": "salario_excedente",
+      "given": [
+        "Salário líquido R$ 1.000,00; pagar R$ 1.200,00 em caixa na competência."
+      ],
+      "expected": {
+        "cash_out_cents": 120000,
+        "salary_outstanding_cents": 0,
+        "salary_advance_cents": 20000
+      }
+    },
+    {
+      "id": "recorrente_dedup",
+      "given": [
+        "Um modelo recorrente de saída R$ 100,00 ativo no mês, categoria K.",
+        "Uma conta paga manual de R$ 100,00 da categoria K no mês."
+      ],
+      "expected": {
+        "cash_out_cents": 10000,
+        "dre_expenses_cents": 10000,
+        "dre_provisions_cents": 0
+      }
+    },
+    {
+      "id": "recorrentes_ocorrencias",
+      "given": [
+        "Dois modelos recorrentes idênticos de R$ 100,00, categoria K, ativos no mês.",
+        "Uma única conta paga de R$ 100,00 de K no mês."
+      ],
+      "expected": {
+        "cash_out_cents": 10000,
+        "dre_expenses_cents": 20000,
+        "dre_provisions_cents": 10000
+      }
+    },
+    {
+      "id": "cancelamento_preserva_pago",
+      "given": [
+        "Evento: parcela A de R$ 300,00 paga; parcela B R$ 700,00 aberta; conta paga R$ 50,00; conta aberta R$ 200,00.",
+        "Cancelar evento após confirmação do cancelamento remoto, sem reembolso."
+      ],
+      "expected": {
+        "cash_in_cents": 30000,
+        "cash_out_cents": 5000,
+        "open_receivables_cents": 0,
+        "firm_payables_cents": 0,
+        "cancelled_installment_count": 1
+      }
+    },
+    {
+      "id": "cancelamento_provedor_falha",
+      "given": [
+        "Evento ativo, parcela R$ 700,00 e cobrança externa aberta; cancelamento remoto falha definitivamente."
+      ],
+      "expected": {
+        "event_still_active": true,
+        "open_receivables_cents": 70000
+      }
+    },
+    {
+      "id": "espelho_incluido",
+      "given": [
+        "Parcela de contrato R$ 1.100,00 já inclui R$ 100,00 de deslocamento.",
+        "Receber parcela e ter avulsa-espelho de deslocamento marcada recebida; sincronizar."
+      ],
+      "expected": {
+        "cash_in_cents": 110000,
+        "dre_revenue_cents": 110000
+      }
+    },
+    {
+      "id": "taxa_asaas_final",
+      "given": [
+        "Grupo de cartão bruto R$ 1.000,00, todas as cobranças conciliadas, líquido final confirmado R$ 920,00.",
+        "Webhook confirmado e sync repetidos; despesa da taxa realizada uma vez."
+      ],
+      "expected": {
+        "cash_in_cents": 100000,
+        "cash_out_cents": 8000,
+        "provider_fee_cents": 8000,
+        "active_fee_expense_count": 1,
+        "fee_reconciliation_pending": false
+      }
+    },
+    {
+      "id": "taxa_asaas_pendente",
+      "given": [
+        "Despesa base Asaas existente R$ 50,00; webhook PAYMENT_ANTICIPATED mostra netValue=value, sem dados finais integrais."
+      ],
+      "expected": {
+        "preserved_fee_expense_cents": 5000,
+        "active_fee_expense_count": 1,
+        "fee_reconciliation_pending": true
+      }
+    },
+    {
+      "id": "dre_distribuicao",
+      "given": [
+        "Receita R$ 1.000,00, despesa operacional paga R$ 200,00, distribuição paga R$ 100,00, sem provisões."
+      ],
+      "expected": {
+        "cash_period_result_cents": 70000,
+        "dre_result_cents": 80000,
+        "dre_distribution_cents": 10000
+      }
+    },
+    {
+      "id": "dre_ajuste_caixa",
+      "given": [
+        "Só um ajuste manual de entrada R$ 100,00, sem contrato/avulsa/modelo."
+      ],
+      "expected": {
+        "cash_period_result_cents": 10000,
+        "dre_result_cents": 0
+      }
+    },
+    {
+      "id": "dre_entrada_recorrente",
+      "given": [
+        "Modelo de entrada recorrente R$ 100,00 ativo no mês, sem dinheiro recebido, sem outras receitas/despesas."
+      ],
+      "expected": {
+        "cash_in_cents": 0,
+        "dre_revenue_cents": 10000,
+        "dre_result_caixa_cents": 10000
+      }
+    },
+    {
+      "id": "dre_conta_manual_aberta",
+      "given": [
+        "Conta manual pendente R$ 200,00, automática=false, sem modelo recorrente e sem outras operações."
+      ],
+      "expected": {
+        "firm_payables_cents": 20000,
+        "dre_provisions_cents": 0
+      }
+    },
+    {
+      "id": "retirada_compromisso_legado",
+      "given": [
+        "Caixa inicial R$ 2.000,00; conta de equipe R$ 1.000,00 ainda tecnicamente pendente.",
+        "Pagar R$ 600,00 pelo ledger; consultar resumo de retirada atual com compromisso bruto."
+      ],
+      "expected": {
+        "cash_balance_cents": 140000,
+        "team_owed_cents": 40000,
+        "withdrawal_commitments_cents": 100000,
+        "withdrawal_prudent_cents": 40000
+      }
+    },
+    {
+      "id": "tenant_e_owner",
+      "given": [
+        "Conta/recebível R$ 100,00 do tenant T2 e conta pessoal R$ 200,00 de P2 no tenant T1.",
+        "Consultar/alterar como P1 no tenant T1 sem permissão sobre T2/P2."
+      ],
+      "expected": {
+        "visible_foreign_records": 0,
+        "unauthorized_mutation_rejected": true
+      }
+    },
+    {
+      "id": "export_completo",
+      "given": [
+        "Filtro com 120 pagamentos de R$ 1,00 cada; tela renderiza somente 40 inicialmente.",
+        "Exportar o mesmo filtro."
+      ],
+      "expected": {
+        "visible_row_count": 40,
+        "export_row_count": 120,
+        "filtered_total_cents": 12000
+      }
+    },
+    {
+      "id": "previsao_estavel_7",
+      "given": [
+        "Meses consecutivos em ordem até setembro de 2026, valores em reais: [1000,1000,1000,1000,1000,1000,1000]",
+        "Âncora 2026-09, horizonte 12; piso futuro: []. Executar o algoritmo de referência."
+      ],
+      "expected": {
+        "forecast_method": "media-recente",
+        "confidence_level": "media",
+        "confidence_score": 81,
+        "backtest_count": 4,
+        "p10_first_cents": 100000,
+        "p50_first_cents": 100000,
+        "p90_first_cents": 100000,
+        "contracted_floor_first_cents": 0
+      }
+    },
+    {
+      "id": "previsao_irregular_7",
+      "given": [
+        "Meses consecutivos em ordem até setembro de 2026, valores em reais: [100,900,0,2000,50,600,0]",
+        "Âncora 2026-09, horizonte 12; piso futuro: []. Executar o algoritmo de referência."
+      ],
+      "expected": {
+        "forecast_method": "media-recente",
+        "confidence_level": "baixa",
+        "confidence_score": 21,
+        "backtest_count": 4,
+        "p10_first_cents": 0,
+        "p50_first_cents": 21667,
+        "p90_first_cents": 176118,
+        "contracted_floor_first_cents": 0
+      }
+    },
+    {
+      "id": "previsao_curta_2",
+      "given": [
+        "Meses consecutivos em ordem até setembro de 2026, valores em reais: [500,600]",
+        "Âncora 2026-09, horizonte 12; piso futuro: []. Executar o algoritmo de referência."
+      ],
+      "expected": {
+        "forecast_method": "insuficiente",
+        "confidence_level": "baixa",
+        "confidence_score": 0,
+        "backtest_count": 0,
+        "p10_first_cents": 47737,
+        "p50_first_cents": 55000,
+        "p90_first_cents": 62331,
+        "contracted_floor_first_cents": 0
+      }
+    },
+    {
+      "id": "previsao_insuficiente_piso",
+      "given": [
+        "Meses consecutivos em ordem até setembro de 2026, valores em reais: []",
+        "Âncora 2026-09, horizonte 12; piso futuro: {\"2026-10\":2000}. Executar o algoritmo de referência."
+      ],
+      "expected": {
+        "forecast_method": "insuficiente",
+        "confidence_level": "baixa",
+        "confidence_score": 0,
+        "backtest_count": 0,
+        "p10_first_cents": 200000,
+        "p50_first_cents": 200000,
+        "p90_first_cents": 200000,
+        "contracted_floor_first_cents": 200000
+      }
+    },
+    {
+      "id": "previsao_estavel_24",
+      "given": [
+        "Meses consecutivos em ordem até setembro de 2026, valores em reais: [1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000,1000]",
+        "Âncora 2026-09, horizonte 12; piso futuro: []. Executar o algoritmo de referência."
+      ],
+      "expected": {
+        "forecast_method": "holt-winters",
+        "confidence_level": "alta",
+        "confidence_score": 100,
+        "backtest_count": 12,
+        "p10_first_cents": 100000,
+        "p50_first_cents": 100000,
+        "p90_first_cents": 100000,
+        "contracted_floor_first_cents": 0
+      }
+    },
+    {
+      "id": "dre_evento_teto_receita",
+      "given": [
+        "Histórico importado: evento com contrato normalizado R$ 1.000,00, sem extras/deslocamento; log financeiro de R$ 1.000,00 em setembro de 2026 e R$ 100,00 em outubro de 2026.",
+        "Consultar caixa de outubro e DRE 2026; o pagamento excedente não altera o teto canônico."
+      ],
+      "expected": {
+        "cash_in_october_cents": 10000,
+        "dre_revenue_september_cents": 100000,
+        "dre_revenue_october_cents": 0
+      }
+    },
+    {
+      "id": "dre_teto_consumido_ano_anterior",
+      "given": [
+        "Histórico importado: contrato normalizado R$ 1.000,00, sem extras/deslocamento; log financeiro de R$ 1.000,00 em dezembro de 2025 e R$ 100,00 em janeiro de 2026.",
+        "Consultar caixa de janeiro e DRE 2026; pagamentos anteriores ao ano consomem o teto."
+      ],
+      "expected": {
+        "cash_in_january_cents": 10000,
+        "dre_revenue_annual_cents": 0
+      }
+    },
+    {
+      "id": "dre_legado_sem_log",
+      "given": [
+        "Evento legado: valor_final=valor_pago=R$ 1.000,00, pagamento_pendente=0, data_cadastro=2026-09-10, data_pagamento_final=2026-10-05 e data_festa=2026-11-20.",
+        "Nenhum pagamentos_parcela nem parcelas_eventos; sem extras/deslocamento, outras receitas ou despesas. Consultar caixa de 2026 e DRE 2026."
+      ],
+      "expected": {
+        "cash_in_annual_cents": 0,
+        "dre_revenue_september_cents": 100000,
+        "dre_revenue_october_cents": 0,
+        "dre_revenue_november_cents": 0
+      }
+    },
+    {
+      "id": "dre_pagamento_negativo",
+      "given": [
+        "Histórico importado: contrato normalizado positivo; único log financeiro de parcela com valor negativo de R$ 100,00 em outubro de 2026, com data e conta válidas.",
+        "Sem outras receitas ou despesas. Extrato preserva o sinal; agregado de receita de evento do DRE ignora pagamentos não positivos."
+      ],
+      "expected": {
+        "cash_in_october_cents": -10000,
+        "dre_revenue_october_cents": 0
+      }
+    },
+    {
+      "id": "equipe_credito_cliente_aplicado",
+      "given": [
+        "Fonte ativa de equipe tipo credito_cliente com R$ 300,00 disponível; dívida de serviço do mesmo profissional/tenant de R$ 200,00.",
+        "Aplicar R$ 100,00 da fonte na dívida; cliente já teve a liquidação registrada quando o crédito nasceu. Não criar novo pagamento de parcela."
+      ],
+      "expected": {
+        "cash_in_cents": 0,
+        "cash_out_cents": 0,
+        "team_owed_cents": 10000,
+        "team_credit_available_cents": 20000,
+        "application_canonical_type": "cliente_direto",
+        "application_has_origin": true,
+        "customer_payments_added": 0
+      }
+    }
+  ]
+}

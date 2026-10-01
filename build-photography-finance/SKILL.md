@@ -1,86 +1,62 @@
 ---
 name: build-photography-finance
-description: "Implemente ou audite o financeiro de um estúdio de fotografia, vídeo, recreação ou eventos, cobrindo parcelas, contas a pagar e receber, caixa por conta bancária, extrato derivado, DRE, provisões, previsões, salários, retiradas e integrações de eventos. Use quando criar dashboard financeiro, razão de movimentos, baixa e estorno, custo previsto versus firme, conciliação ou relatórios com regimes financeiros distintos."
+description: "Replique, implemente ou audite o sistema financeiro do Memora em outro projeto: contas a pagar e receber, parcelas e descontos, créditos de cliente, caixa e contas bancárias, DRE, recorrências, salários, acertos de equipe, custos de eventos, cobrança e taxas Asaas, retiradas, relatórios e previsão. Use para reproduzir as regras e fluxos financeiros de estúdios, fotografia, vídeo, recreação e eventos em qualquer stack. Billing da assinatura SaaS e contratos jurídicos têm escopo próprio."
 ---
 
-# Construir financeiro para fotografia e eventos
+# Replicar o financeiro do Memora
 
-## Objetivo
+Entregue paridade de comportamento, cálculos, permissões e estados, adaptada ao projeto alvo. Esta skill contém um retrato auditado em **01/10/2026**, com evidências locais e situação de entrega registrada. Ela não comprova o estado de uma produção futura nem autoriza movimentações reais.
 
-Entregue um sistema em que cada número tenha regime, origem e estado conhecidos, e em que baixar ou estornar uma obrigação reconcilie todas as superfícies afetadas sem dupla contagem.
+## Escolha o trabalho
 
-## Comece pela auditoria
+| Pedido | Como conduzir |
+|---|---|
+| Replicação completa | Leia o inventário, as regras de regimes e os contratos das áreas; transforme cada capacidade em requisito verificável no alvo. |
+| Correção ou auditoria de um fluxo | Leia os regimes e a referência desse fluxo; rastreie também as superfícies que consomem os valores. |
+| Migração de histórico | Reconcilie somente leitura antes; preserve pagamentos, datas, vínculos e origens; prepare dry-run e rollback. |
 
-1. Mapeie schema, serviços, páginas, APIs, exports, jobs, webhooks e geradores automáticos de lançamentos.
-2. Identifique todas as fontes de entrada e saída e qual delas é autoridade.
-3. Liste as definições atuais de caixa, competência, provisão, saldo de conta e resultado do período.
-4. Leia [regimes-e-movimentos.md](references/regimes-e-movimentos.md).
-5. Faça consultas de reconciliação antes de alterar dados financeiros reais.
+O nome das tabelas e a linguagem PHP são evidências, não dependências. A replicação pode usar outro banco, framework ou provedor. Preserve o contrato do negócio e registre equivalências e divergências aprovadas.
 
-## Defina contratos monetários
+## Referências por assunto
 
-- Use centavos inteiros ou `DECIMAL` exato; nunca ponto flutuante binário para persistência ou igualdade.
-- Grave tenant, moeda, valor original, saldo, vencimento, estado, origem e timestamps.
-- Modele conta bancária explicitamente em todo movimento de caixa.
-- Separe obrigação/recebível do pagamento que a liquida; permita parcialidade por aplicações.
-- Faça toda escrita validar ownership, estado atual e concorrência no backend.
-- Use chaves idempotentes por origem para lançamentos automáticos e webhooks.
+| Referência | Quando ler |
+|---|---|
+| [Inventário e fluxos](references/inventario-e-fluxos.md) | Escopo completo, telas, cadastros, integrações, UX e limites de entrega. |
+| [Regimes e movimentos](references/regimes-e-movimentos.md) | Qualquer cálculo de caixa, DRE, previsão, saldo, provisão ou cancelamento. |
+| [Parcelas, clientes e Asaas](references/parcelas-clientes-e-asaas.md) | Recebimentos, descontos, reagendamento, reserva/sinal, crédito de cliente, links, webhook e taxas. |
+| [Equipe, salários e custos](references/equipe-salarios-e-custos.md) | Acertos, pagamento direto ao profissional, créditos/adiantamentos, recorrências, salários e álbum. |
+| [Relatórios e previsão](references/relatorios-e-previsao.md) | DRE detalhado, retiradas, análise anual, projeções e fronteira com precificação. |
+| [Replicação e validação](references/replicacao-e-validacao.md) | Modelo lógico, APIs, permissões, implementação, cenários de aceitação e migração. |
+| [Evidências do Memora](references/evidencias-memora.md) | Localizar fontes auditadas e distinguir entrega registrada, código local e limitações. |
 
-## Construa um extrato canônico derivado
+## Comece pelo alvo
 
-- Normalize cada fonte em um shape de movimento: ID, tipo, data, descrição, valor, direção, conta e origem.
-- Una somente movimentos realizados; não misture provisões no extrato de caixa.
-- Exclua baixas sem caixa do saldo bancário e identifique-as separadamente no negócio.
-- Calcule saldo acumulado com saldo anterior + movimentos do período, não chame o resultado do período de saldo da conta.
-- Faça dashboards, exportações e saldos por conta consumirem o mesmo serviço canônico.
-- Humanize rótulos técnicos apenas na apresentação; preserve a chave de origem.
+1. Mapeie usuários, empresas, fontes de receita, obrigações, pagamentos, bancos, relatórios, automações e provedores existentes.
+2. Crie a matriz `capacidade → estado atual → implementação alvo → evidência → teste → divergência`. Use o inventário como checklist; não substitua uma função por um card estático.
+3. Defina moeda, arredondamento, calendário/fuso, estados, bases de tempo e ownership. Mapeie entidades antes de copiar consultas ou adaptar componentes.
+4. Implemente primeiro as autoridades e aplicações de pagamentos; depois construa os relatórios e as telas sobre essas mesmas fontes.
+5. Valide em dados sintéticos, reconcilie histórico em dry-run e informe o que passou, o que depende de integração e o que permanece fora da entrega.
 
-## Preserve regimes distintos
+## Contratos que não podem se perder
 
-- Caixa: dinheiro efetivamente movimentado.
-- DRE: resultado por regra contábil/gerencial, incluindo provisões documentadas.
-- Competência/previsão: receita e custo atribuídos ao período econômico definido.
-- Cards operacionais: vencimentos e estados, que podem usar datas diferentes.
+- **Caixa é realizado.** Recebíveis, previsão de álbum, salário provisionado, desconto e baixa sem caixa não são dinheiro novo. Recebimento original e espelho de contrato nunca entram duas vezes.
+- **Parcela não é pagamento.** Preserve a coleção de pagamentos/aplicações e derive o saldo; status isolado e `eventos.valor_pago` não são prova suficiente de entrada financeira.
+- **Resultado do período não é saldo bancário.** O saldo acumulado inclui o histórico anterior. Conta desconhecida continua `Sem conta` até identificação; editar a conta não cria novo movimento.
+- **Provisão tem recortes.** `previsto=1 AND status=pendente` identifica previsão ativa; ela já pertence às provisões. Efetivar álbum é de mão única. Cancelados nunca reaparecem como abertos.
+- **Escopo é financeiro e empresarial.** A empresa, a pessoa e o profissional externo têm ownership próprio. Não exponha caixa, conta Asaas, clientes ou salários de colegas por uma permissão de leitura pessoal.
 
-Não tente fazer todas as telas exibirem o mesmo total. Documente por que cada uma responde a uma pergunta diferente e ofereça pontes de reconciliação.
+Na implementação alvo, use centavos inteiros ou decimal exato, validação server-side, transações curtas, locks em ordem estável e chaves de idempotência para retries. São requisitos de implementação robusta; o código legado do Memora também utiliza cálculos `float`, migrações em requests e respostas diferentes por endpoint. Não replique esses detalhes como se fossem funcionalidades.
 
-## Modele previsto versus firme
+## Integrações e alterações financeiras
 
-- Use um marcador próprio para custo previsto; não invente um status que quebre fluxos de pagamento existentes.
-- Defina um predicado canônico para “previsão ativa”, incluindo o estado ainda pendente.
-- Mostre previsão no resultado e nas provisões que a incluem, mas não como dívida vencida antes do compromisso real.
-- Efetive somente por sinal de negócio confiável, carimbe a data e congele valor/vencimento conforme a regra.
-- Faça a efetivação ser de mão única quando o compromisso externo puder já existir.
-- Nunca some o subconjunto previsto novamente sobre o total de provisões.
+Valide a situação do provedor antes de desconto, crédito, cancelamento ou recriação de parcela quando houver cobrança ativa. Chamada HTTP não deve ficar sob uma transação longa de banco. Para cancelamento do evento, conclua a confirmação do provedor antes da confirmação local; para reagendamento, o Memora salva localmente e retorna avisos de sincronização depois do commit. Modele falhas/reconciliação conforme cada operação.
 
-## Centralize baixas e estornos
+Asaas de cobrança do cliente do estúdio é separado do billing da assinatura do SaaS. Não copie credenciais, IDs, dados pessoais ou exemplos históricos da produção. Histórico financeiro não pode receber data, banco ou cliente por suposição.
 
-1. Trave a obrigação atual e revalide o saldo.
-2. Grave pagamento/aplicação e movimento de caixa na mesma transação curta quando ambos existirem.
-3. Sincronize os espelhos derivados pelo serviço único.
-4. Emita integrações externas após o commit.
-5. No estorno, reverta exatamente as aplicações e movimentos originais.
-6. Registre auditoria com antes/depois e usuário responsável.
+## Conclua por evidência
 
-Impeça que uma mesma obrigação seja liquidada simultaneamente por caixa e por baixa sem caixa.
+Execute os cenários de [replicação e validação](references/replicacao-e-validacao.md). O [fixture sintético](assets/cenarios-reconciliacao.json) fornece resultados esperados; [validate_replication.py](scripts/validate_replication.py) compara a saída de um adaptador do projeto alvo com eles. Rodar apenas `--check-fixture` valida o artefato, não implementa nem homologa o alvo.
 
-## Construa previsões e retiradas com prudência
+Uma entrega completa precisa demonstrar: fluxos operáveis; todos os totais reconstruíveis; concorrência sem consumo duplicado; isolamento de tenant/pessoa; histórico e estorno preservados; exportações do filtro inteiro; tratamento de integração indisponível; e divergências de regimes explicadas. Pilotos locais não viram funcionalidades públicas por aparecerem nesta skill.
 
-- Separe valor recebido, contratado, vencido e previsto.
-- Faça cenários explícitos e rotule estimativas; não apresente projeção como saldo disponível.
-- Calcule retirada de lucro considerando compromissos definidos e preserve pró-labore como categoria própria.
-- Permita ajustes manuais de caixa somente a administradores, com conta, data, motivo e auditoria.
-
-## Valide com reconciliação
-
-- Teste pagamento integral, parcial, excedente, estorno e concorrência.
-- Teste movimento entre contas e edição apenas da conta sem alterar valor/origem.
-- Teste previsão antes e depois da efetivação, pagamento e cancelamento.
-- Compare extrato, saldo por conta, dashboard, DRE e exportações para o mesmo conjunto conhecido.
-- Teste dois tenants com IDs, documentos e descrições coincidentes.
-- Faça somas em SQL antes/depois e explique qualquer diferença esperada por regime.
-- Rode testes e linters e mantenha um fixture financeiro regressivo.
-
-## Critérios de conclusão
-
-Considere pronto quando cada total pode ser refeito a partir de movimentos rastreáveis, toda diferença entre telas é explicável pelo regime e retries ou estornos não criam nem apagam dinheiro fictício.
+No fechamento, entregue a matriz de paridade, schema/migrações, APIs e telas, testes com resultados, dependências externas e limitações. Publicar o alvo ou movimentar dados reais depende da autorização desse projeto.

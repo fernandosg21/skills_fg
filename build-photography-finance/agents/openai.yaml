@@ -1,4 +1,4 @@
 interface:
   display_name: "Financeiro para Fotografia"
-  short_description: "Construa financeiro de caixa DRE previsões e eventos"
-  default_prompt: "Use $build-photography-finance para implementar ou auditar este financeiro de fotografia."
+  short_description: "Replique o financeiro do Memora com regras e validação"
+  default_prompt: "Use $build-photography-finance para replicar o financeiro do Memora neste projeto, auditando o alvo, preservando os contratos de negócio e validando a paridade com os cenários da skill."

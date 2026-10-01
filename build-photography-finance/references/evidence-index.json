@@ -1,0 +1,375 @@
+{
+  "snapshot_date": "2026-10-01",
+  "responsible": "Codex",
+  "source_repository": "fernandosg21/memora-system",
+  "source_head": "9e300c0f18e2c81f62ce74b633124edc2f8f5d89",
+  "coverage": "Contratos e caminhos selecionados auditados; dependências catalogadas por existência e hash",
+  "production_revalidated": false,
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "be9adf0d83e832ca68961239fb5aaab50e60074321ea8b21fefd8c436ab50391",
+      "bytes": 1220649
+    },
+    {
+      "path": "docs/ajuda/sistema/financeiro.md",
+      "sha256": "c1fe656f1b31bdf9650aaf77c135a2a7e5ddeb804569abb0377731c459d07890",
+      "bytes": 13963
+    },
+    {
+      "path": "docs/blog/base-conhecimento-financeiro-contratos.md",
+      "sha256": "fc897fdab082a446ae1cadb4620fac414b58d7d71bf7df327d98ae884e5fa29d",
+      "bytes": 29023
+    },
+    {
+      "path": "includes/update_stories.php",
+      "sha256": "8c4d9990208e419f8f0e99107ba625922973440da31d22d1a1062084f9e799dd",
+      "bytes": 190406
+    },
+    {
+      "path": "includes/financeiro_helpers.php",
+      "sha256": "f29974fcc0894680764187698d7eeb6463f317f179bff30bf291b0c54a23d5d4",
+      "bytes": 132909
+    },
+    {
+      "path": "includes/cliente_credito.php",
+      "sha256": "ae13b3d27cc3c11de573c2a29fc3c8e923010cb0164a4756722cdf566ae75172",
+      "bytes": 3863
+    },
+    {
+      "path": "includes/financeiro_bank_accounts.php",
+      "sha256": "1d962f0c0eb75fc66a7aa01fae04ed8515cb25d891583b641461cab401199576",
+      "bytes": 13887
+    },
+    {
+      "path": "includes/financeiro_ajustes_caixa.php",
+      "sha256": "44c9db3deb64ab7b5954affd502f802a5286c6f1afb333ed91bb5e8c537014da",
+      "bytes": 5793
+    },
+    {
+      "path": "includes/AsaasEventIntegration.php",
+      "sha256": "ebafa447902905cb8e4a98a67590dcea9f3b161b1bc78c6cda15ea2dfd3bbe81",
+      "bytes": 184481
+    },
+    {
+      "path": "includes/freelancer_settlement_read.php",
+      "sha256": "4bfaf7c65719bb12015789a3f9fc14d617b941eda36406ff89854a696719684e",
+      "bytes": 2520
+    },
+    {
+      "path": "includes/forecast_engine.php",
+      "sha256": "52e886c4e598713c36ecd134494c60026153eca3e1d4e004495da81342244193",
+      "bytes": 31907
+    },
+    {
+      "path": "includes/pricing_engine.php",
+      "sha256": "c99ae7b2ce195a949b59e24ed07871d16954f026c141b497abaffbf82a9af48c",
+      "bytes": 12761
+    },
+    {
+      "path": "includes/admin_permissions.php",
+      "sha256": "8267d945d844b5e1026635700236d79cc3a4a7109575aaa0d855905d88d75941",
+      "bytes": 14619
+    },
+    {
+      "path": "adm/includes/auth.php",
+      "sha256": "30400c5663aff086cd1b8c682f09909c16c3201d95bdd9b7863ee926b9893cce",
+      "bytes": 87047
+    },
+    {
+      "path": "adm/includes/financeiro_scope.php",
+      "sha256": "84ea7a5418fd74e264423bceaeb932521e072bb27aca9d57ef790e449ad9c241",
+      "bytes": 5212
+    },
+    {
+      "path": "adm/includes/financeiro_extrato_service.php",
+      "sha256": "183ae9d66a4aadc6868eceee517d8a75146be18d425842862fbe580c67075e12",
+      "bytes": 34523
+    },
+    {
+      "path": "adm/includes/financeiro_auto_custos.php",
+      "sha256": "53bb39d7a3ef8c209485277959005d8383bac8d4bc30a9a73cfd499b64afc51d",
+      "bytes": 308699
+    },
+    {
+      "path": "adm/includes/financeiro_recorrentes.php",
+      "sha256": "61a942c704557a10be6ad044b67e9f9b556c12aa661735b6fedfc6ec242d9f05",
+      "bytes": 32197
+    },
+    {
+      "path": "adm/includes/financeiro_salario_pagamentos.php",
+      "sha256": "b08d87aec091571cf014122c109d09fcd40612ad7b7cd98ebd30ad49057f2a7e",
+      "bytes": 27103
+    },
+    {
+      "path": "adm/includes/financeiro_salario_ajustes.php",
+      "sha256": "c821a396df163feefcb7ed0c86938d9851b8a5d842614ec911e220fc787942e8",
+      "bytes": 26079
+    },
+    {
+      "path": "adm/includes/financeiro_retiradas.php",
+      "sha256": "0e237ba6e17cc6d71383b8fd6aa2500bb302fb434902c3ce59c80c81db918260",
+      "bytes": 8733
+    },
+    {
+      "path": "adm/includes/financeiro_saldos.php",
+      "sha256": "81bd30c4d2b360915936401451606c2bcc7d3068543f9073dddd4acdf08917dc",
+      "bytes": 6355
+    },
+    {
+      "path": "adm/includes/financeiro_export.php",
+      "sha256": "af96b58b041b0136c7f786580c2c3f2c38a14fa6fe624cb27774552b57ce321b",
+      "bytes": 12948
+    },
+    {
+      "path": "adm/api/dados_financeiro.php",
+      "sha256": "f6302dfbe88b965e3eb0beae2ee916596e52001cc7363ccfd5333627097dd608",
+      "bytes": 70404
+    },
+    {
+      "path": "adm/api/dados_dre.php",
+      "sha256": "9be002b9627c361ffe7636910ff2fc3a1b12521ccc2d33a0f1ddf1bf07c76927",
+      "bytes": 43285
+    },
+    {
+      "path": "adm/api/dados_relatorio_financeiro.php",
+      "sha256": "e51c7a5ab0801fe415fc17143e9d184ad545fd79c244f0426772e0a490937441",
+      "bytes": 12520
+    },
+    {
+      "path": "adm/api/dados_previsao_faturamento.php",
+      "sha256": "b298c8caf33c1b8e6d0a96e751f4895ef97cf567a78d9dfa8304781d50a2f6dd",
+      "bytes": 14700
+    },
+    {
+      "path": "adm/api/contas_receber_listar.php",
+      "sha256": "c12a7e9260ee4c9e69409a132c859215c6fa066b9dd125cec0cc5cbbc782dafb",
+      "bytes": 17452
+    },
+    {
+      "path": "adm/api/contas_receber_avulsa_salvar.php",
+      "sha256": "493ea727690bfee69827961b07ae717384e04bc264addbed522b975788b14c8a",
+      "bytes": 6693
+    },
+    {
+      "path": "adm/api/contas_receber_avulsa_marcar_recebido.php",
+      "sha256": "0b546d61cbcdb658bd0e8855dd1ada2910aa67cb3116c96310aa6d8fe1805abd",
+      "bytes": 2983
+    },
+    {
+      "path": "adm/api/contas_receber_avulsa_excluir.php",
+      "sha256": "3a16143c2a7819ef59b5b651fd1adfc63046b45c005e4e6c896f76ffa3aca034",
+      "bytes": 2275
+    },
+    {
+      "path": "adm/api/contas_pagar_listar.php",
+      "sha256": "47985f85204c4153f7506525d606ea3805856c8538eb74bcc70d3fde10600ec0",
+      "bytes": 13102
+    },
+    {
+      "path": "adm/api/contas_pagar_salvar.php",
+      "sha256": "d65b7dd1928457218b62e8bae3426661142facca2a820fab03340bd36933568e",
+      "bytes": 10857
+    },
+    {
+      "path": "adm/api/contas_pagar_marcar_pago.php",
+      "sha256": "631e356d904214b93f79b861621f66b92345c5a5960a50e57bf49820cfb5e287",
+      "bytes": 4964
+    },
+    {
+      "path": "adm/api/contas_pagar_excluir.php",
+      "sha256": "976634b3d23082a3fcd10ca858ce6dc5d12c576609a6f3c2c8fb19f8332afa4c",
+      "bytes": 7214
+    },
+    {
+      "path": "adm/api/cliente_credito.php",
+      "sha256": "131d5aa3734031d87a4af82f7d2a158bfc82437b1a103cec5a67ec0c595ea2ee",
+      "bytes": 9454
+    },
+    {
+      "path": "adm/api/registrar_pagamento_parcela.php",
+      "sha256": "b4c7f50196799570f0f1b32807c6f61b053e58c3f856da28b7770ef2275af83e",
+      "bytes": 14237
+    },
+    {
+      "path": "adm/api/confirmar_parcela.php",
+      "sha256": "d590e46d1ed1fa86b023981745208b091e7d530aaa32e54d877c2ccbb0aece50",
+      "bytes": 6792
+    },
+    {
+      "path": "adm/api/pagamento_parcial_parcela.php",
+      "sha256": "a27a0f73eb71fd67d6e493e8be0b79931ba0ba701289496833f45a6f877069d4",
+      "bytes": 7398
+    },
+    {
+      "path": "adm/api/reagendar_parcelas_evento.php",
+      "sha256": "b399118c329c68b386d7c3754ffe390ab88bae41e1c335af304028e17456d5e7",
+      "bytes": 4364
+    },
+    {
+      "path": "adm/api/editar_parcela.php",
+      "sha256": "49f9ca569602f30d30988506f8a4d0327131b1bc232e872c1202d625157cd5df",
+      "bytes": 1929
+    },
+    {
+      "path": "adm/api/desfazer_baixa_parcela.php",
+      "sha256": "a882895ca8c6d5e7813007647cee76c630488b13ef7ffb2d4315e1689d5af479",
+      "bytes": 5648
+    },
+    {
+      "path": "adm/api/excluir_pagamento_parcela.php",
+      "sha256": "08b21b39a81b2417a319d299b0df8eb3980cdea593d097dc79122c9c9a38a999",
+      "bytes": 1675
+    },
+    {
+      "path": "adm/api/financeiro_extrato_conta.php",
+      "sha256": "326863c74aa888611b47ace515837a100b1490804db0a1f0d8e396d4eb74e96e",
+      "bytes": 4843
+    },
+    {
+      "path": "adm/api/financeiro_saldos.php",
+      "sha256": "a6a7429fa1daf2730dc91a5013e0a57bc73b4f49adf21f44c88f52d152999c29",
+      "bytes": 1357
+    },
+    {
+      "path": "adm/api/salario_pagamentos.php",
+      "sha256": "1defee9b7f5ad7f059652fab0b831b4eb971b6c5ed76d6f2f5c7f766d0c60113",
+      "bytes": 23957
+    },
+    {
+      "path": "adm/api/salario_ajustes.php",
+      "sha256": "f2cfda51c0cbbd636e75b306f2c0429c045841f99e12daef0156e7784aef37fd",
+      "bytes": 16320
+    },
+    {
+      "path": "adm/api/financeiro_recorrentes.php",
+      "sha256": "1fac810d4e96a7ed2d7d81119c23a6ae266efbe65fba4ac974f19faf93cfae0e",
+      "bytes": 34926
+    },
+    {
+      "path": "adm/api/freelancer_acerto_baixa.php",
+      "sha256": "9ee88d1936835756c2269e8a2efb10259e9fcfaddfdde0f77c69b9349aef94ce",
+      "bytes": 28470
+    },
+    {
+      "path": "adm/api/freelancer_credito_usar.php",
+      "sha256": "937d8cef080d424318b39e5166ea8cdf25084d8fa2324581106e971863976f8c",
+      "bytes": 9994
+    },
+    {
+      "path": "adm/api/financeiro_acerto_freelancer.php",
+      "sha256": "9e93af5e4f58a0e01b72f1cb3778ce58a03c016aaeb08e9d6ff54b7264409eb8",
+      "bytes": 37550
+    },
+    {
+      "path": "adm/api/financeiro_acerto_valores.php",
+      "sha256": "472198b9889600cfa448ca654656d1c84a6cac76e7e2715c561299b1989fafb6",
+      "bytes": 24183
+    },
+    {
+      "path": "adm/api/financeiro_acerto_recreacao.php",
+      "sha256": "26b2cec0efdedaa6c80f52ea976c1caa51e212d302f4c3c4c37da36be92c8d00",
+      "bytes": 21868
+    },
+    {
+      "path": "adm/api/pagamentos_equipe.php",
+      "sha256": "b9611b532cfc6e057c8eebc9b0407208f9aeb9e2f41ed6ac4a61501672900805",
+      "bytes": 32778
+    },
+    {
+      "path": "adm/api/retirada_lucro_salvar.php",
+      "sha256": "668a14a5999cdbb8e11d93678ea5814d30c74d3837bf8e5685f19c6ea802852c",
+      "bytes": 6504
+    },
+    {
+      "path": "adm/api/retirada_lucro_listar.php",
+      "sha256": "19355e2a6ef7d8bed292cf24b8e3070854d30a5d7be6a21c9b4bd39277d7125a",
+      "bytes": 3455
+    },
+    {
+      "path": "adm/api/asaas_eventos_cobrancas.php",
+      "sha256": "63ed2c6120b01c01c53923badf975eafc87daf9d13d623863cdedf71c7ec772b",
+      "bytes": 5253
+    },
+    {
+      "path": "adm/api/integracoes_asaas.php",
+      "sha256": "f137c8555bc02bce32d295fab753dcae625a2c59d89f495009ed30cfc6891ec4",
+      "bytes": 14631
+    },
+    {
+      "path": "api/asaas_eventos_webhook.php",
+      "sha256": "96a39256450f1012e5e05748f98c65b599ab81e42f00c3090efa57aa535ee361",
+      "bytes": 4491
+    },
+    {
+      "path": "adm/api/cancelar_evento.php",
+      "sha256": "a1823ca213d9f32ff001712f36f4e7033e56dce1370464a5ed18f9c7269d7fa2",
+      "bytes": 8744
+    },
+    {
+      "path": "adm/api/atualizar_status_evento.php",
+      "sha256": "969fb1419f3eb9b182d31b6b4496dee5e9caa8c36bcc3bcb2e34b29919b54448",
+      "bytes": 6817
+    },
+    {
+      "path": "adm/api/financeiro_categorias_crud.php",
+      "sha256": "1fc296799805eff71a651214579076030b8b445e93cf2f49629a994fb4a8b329",
+      "bytes": 3554
+    },
+    {
+      "path": "adm/api/financeiro_fornecedores_crud.php",
+      "sha256": "e3f543b182b1f06e3a96c8b86c2239859ec30c9ba989990b4b46b72db238cd80",
+      "bytes": 12778
+    },
+    {
+      "path": "adm/api/financeiro_contas_bancarias_crud.php",
+      "sha256": "f87a765d674f29fa2981f272bca02c2ee604e2f2aaba36c81b1b15181c54b990",
+      "bytes": 9858
+    },
+    {
+      "path": "adm/api/financeiro_ajustes_caixa_crud.php",
+      "sha256": "4463bd56e5c17ad5c828a366efeb426bb5b0656379ce487676b28fbf70112d0e",
+      "bytes": 7380
+    },
+    {
+      "path": "adm/api/export_financeiro_extrato.php",
+      "sha256": "b91aa6767d59f4e73274bf2b1997bd4809e03538d1891d62cbfda1df251e2a2a",
+      "bytes": 4247
+    },
+    {
+      "path": "adm/api/export_contas_pagar.php",
+      "sha256": "38331fed99a5e938799c3b1123c815bd1ffb7d13fa0c6372baed0dda756472f3",
+      "bytes": 7642
+    },
+    {
+      "path": "adm/api/export_contas_receber.php",
+      "sha256": "36d10edc45b4f8d815f995b07ffa241ecc32f6528f340cbf4a42b8f29d048d13",
+      "bytes": 8872
+    },
+    {
+      "path": "adm/api/export_dre.php",
+      "sha256": "af731a55d29944663757d15666975cfc7c20c69e7078f6ca26884e9e5c2d0cbd",
+      "bytes": 2753
+    },
+    {
+      "path": "adm/api/export_parcelas.php",
+      "sha256": "65b132ba03e568f3c55183a0962a28d3ea8c6b442a81e82aa713f0638b1d788e",
+      "bytes": 2815
+    },
+    {
+      "path": "docs/operacao/clareza-competencia-financeira-2026-09-13.md",
+      "sha256": "f96daac4ab47350e9a84b3b404880073700f0368644209e31b9e5cffb6554937",
+      "bytes": 1524
+    },
+    {
+      "path": "docs/operacao/previsao-validacao-temporal-2026-09-13.md",
+      "sha256": "9669e027cbb9d3f099509460081ce920f2d6541d7e65192b1c363c4db63a07b9",
+      "bytes": 2806
+    },
+    {
+      "path": "docs/operacao/asaas-taxas-cartao-2026-09-23.md",
+      "sha256": "bf1fa0c73ed6864499acd094c5054f50552344c51138460c2bde9f8e17539912",
+      "bytes": 4930
+    }
+  ]
+}
