@@ -14,7 +14,7 @@ Cada pasta contém uma skill independente. As funcionalidades do Memora System f
 | [manage-tenant-module-access](./manage-tenant-module-access) | Registry e gates de módulos públicos, desligados ou exclusivos. |
 | [manage-tenant-users-permissions](./manage-tenant-users-permissions) | Usuários, convites, papéis, permissões, sessões e 2FA. |
 | [build-saas-auth-subscription-lifecycle](./build-saas-auth-subscription-lifecycle) | Cadastro, verificação, login, OAuth, trial e ciclo da assinatura. |
-| [implement-asaas-checkout](./implement-asaas-checkout) | Checkout, cobranças, webhooks e reconciliação no Asaas. |
+| [implement-asaas-checkout](./implement-asaas-checkout) | Checkout, assinaturas, cobranças e reconciliação no Asaas, com a chave da API cadastrada no painel do admin e o webhook criado pelo próprio sistema. |
 | [build-saas-referral-credits](./build-saas-referral-credits) | Indicações, recompensas e créditos de renovação por ledger. |
 | [operate-saas-control-plane](./operate-saas-control-plane) | Painel interno para operar tenants, planos, trials e jobs. |
 | [migrate-tenant-data-safely](./migrate-tenant-data-safely) | Exportação, importação, cutover, reconciliação e rollback. |

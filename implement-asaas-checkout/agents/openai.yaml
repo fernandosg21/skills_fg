@@ -1,0 +1,4 @@
+interface:
+  display_name: "Asaas: checkout, assinaturas e webhook automático"
+  short_description: "Chave da API no painel do admin, webhook criado pelo sistema, assinaturas e métricas"
+  default_prompt: "Use $implement-asaas-checkout para integrar o Asaas neste sistema com chaves de sandbox e produção no painel do superadmin e webhook configurado automaticamente."
