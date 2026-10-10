@@ -85,6 +85,8 @@ Cada pasta contém uma skill independente. As funcionalidades do Memora System f
 | [create-scroll-video-hero](./create-scroll-video-hero) | Hero com vídeo controlado pelo progresso da rolagem. |
 | [criar-paginas-de-erro-personalizadas](./criar-paginas-de-erro-personalizadas) | Páginas de erro humanizadas, responsivas e alinhadas à identidade visual, com HTML acessível, artes separadas e status HTTP reais. |
 | [separar-arte-em-camadas-psd](./separar-arte-em-camadas-psd) | Conversão de arte achatada em PSD organizado por camadas. |
+| [video-da-pasta](./video-da-pasta) | Vídeo editado com Remotion a partir dos arquivos de uma pasta: inventário, briefing, amostra e MP4 final. |
+| [vlog-lara](./vlog-lara) | Vlogs da Lara: estrutura, poucos cortes, fade só em mudança de ambiente, inserts em papel rasgado com fotos reais e base Remotion pronta. |
 
 ## Como usar
 
