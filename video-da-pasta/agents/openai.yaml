@@ -1,4 +1,0 @@
-interface:
-  display_name: "Vídeo da Pasta"
-  short_description: "Transforma os arquivos de uma pasta em vídeo editado com Remotion"
-  default_prompt: "Use $video-da-pasta para inventariar a pasta, entrevistar, montar o briefing, aprovar a amostra e entregar o MP4 final com Remotion."

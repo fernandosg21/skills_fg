@@ -1,0 +1,4 @@
+interface:
+  display_name: "LeveVideoEdit"
+  short_description: "Transforma os arquivos de uma pasta em vídeo editado com Remotion"
+  default_prompt: "Use $leve-video-edit para inventariar a pasta, entrevistar, montar o briefing, aprovar a amostra e entregar o MP4 final com Remotion."

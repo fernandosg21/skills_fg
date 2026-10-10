@@ -1,9 +1,9 @@
 ---
-name: video-da-pasta
+name: leve-video-edit
 description: Gera vídeos editados com Remotion a partir dos arquivos de qualquer pasta (gravações, fotos, logos, roteiros). Entrevista antes, organiza a pasta, aprova amostra e entrega o MP4 final.
 ---
 
-# Vídeo da Pasta
+# LeveVideoEdit
 
 Transforma o conteúdo de uma pasta (gravação de fala, fotos, prints, logos, banners, roteiro, música) em um vídeo editado com Remotion, seguindo o ciclo **Preparar, Testar, Revisar, Reutilizar**. A IA executa a edição; as decisões sobre mensagem, oferta e aprovação são sempre do usuário.
 
