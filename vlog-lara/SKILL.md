@@ -16,6 +16,15 @@ Implementação de referência completa: `A:/2026/Vídeos Lara/viagem-misteriosa
 3. **Não inventar.** Lugares, nomes, preços e falas só se a Lara disse ou o usuário confirmou. Textos na tela sem emojis e sem travessão.
 4. **Não gastar nem baixar sem autorização.** Cada download (foto, música) precisa de ok explícito, com arquivo, fonte e tamanho.
 5. **Transcrição real é a fonte dos tempos.** Nunca presumir onde a fala começa ou termina; medir no áudio.
+6. **Identificar a gravação antes de editar cores.** Antes de qualquer conversão, LUT ou color grading, diagnosticar nos arquivos originais como cada vídeo foi gravado e selecionar a solução adequada ao modo de captura e à entrega. Seguir o diagnóstico obrigatório abaixo; não escolher ajustes de cor por aparência ou tentativa.
+
+## Diagnóstico de cor obrigatório antes de editar
+
+1. **Identificar a origem real, por clipe.** Antes de normalizar ou editar cores, examinar o original com `ffprobe -v error -show_streams -show_format -of json "ARQUIVO_ORIGINAL.mov"`. Registrar câmera/dispositivo e modo de captura quando disponíveis, codec/perfil, formato de pixels e profundidade de bits, `color_primaries`, `color_transfer`, `color_space`, `color_range` e metadados adicionais (Dolby Vision, mastering display e content light level). Distinguir SDR, HDR HLG, HDR PQ e Log. HEVC, 10 bits, extensão MOV ou a aparência da imagem, isoladamente, não identificam o modo de gravação. Tratar materiais mistos individualmente.
+2. **Resolver a interpretação antes de ajustar.** Corroborar os metadados com quadros reais e, se houver campos ausentes ou inconsistentes, investigar a câmera, o modo de gravação e a procedência do arquivo. Não presumir um perfil nem iniciar o grading enquanto a interpretação de cor estiver indefinida. Registrar evidência, incertezas e espaço de cor da entrega.
+3. **Escolher a solução para o formato identificado.** Consultar documentação técnica confiável e aplicar a transformação de entrada apropriada antes dos ajustes criativos. Para HDR para SDR, usar tone mapping e conversão de gamut compatíveis com a transferência e os metadados identificados; para Log, usar a transformação correspondente ao perfil confirmado. Conferir primárias, transferência, matriz e faixa na saída: apenas trocar tags não converte os pixels. Não reutilizar automaticamente uma LUT, curva ou ganho de exposição de outro vídeo.
+4. **Trabalhar a partir dos originais.** Quando a conversão anterior tiver estourado altas luzes ou cores, refazer a conversão da origem em vez de tentar recuperar detalhe perdido no MP4 já convertido. Separar conversão técnica de color grading; proteger altas luzes, tons de pele e detalhes, com os ajustes leves solicitados. Correção somente de cor deve preservar montagem, cortes, inserts, quadros/tempos e áudio.
+5. **Validar uma prévia antes do completo.** Conferir pele, objetos coloridos, brancos, sombras e detalhes claros em quadros da exportação e em uma prévia curta, no formato de entrega. Verificar metadados de saída e reprodução; registrar o diagnóstico, a transformação e o resultado. Quando o usuário solicitar aprovação de cor, aguardar sua aprovação da prévia antes de exportar outro completo. Validação técnica não equivale à aprovação visual do usuário.
 
 ## Formato
 
@@ -68,7 +77,7 @@ Fotos realistas: preferir **Pexels/Unsplash** (licença permite uso comercial e 
 
 ## Fluxo de trabalho para um novo vídeo
 
-1. **Inventário:** `ffprobe` de cada clipe (duração, resolução, fps, áudio, `stream_side_data=rotation`). A pasta pode vir em `.zip` e em subpasta com o nome do contato.
+1. **Inventário e diagnóstico de cor:** `ffprobe` dos originais de cada clipe (duração, resolução, fps, áudio, rotação e os metadados de cor do diagnóstico obrigatório). Identificar o modo de gravação e a transformação apropriada antes de normalizar ou aplicar color grading. A pasta pode vir em `.zip` e em subpasta com o nome do contato.
 2. **Fala da Lara existe?** Transcrever (faster-whisper medium). Se não houver fala, parar e perguntar (o Vídeo 3, só com cenas de terceiros, foi cancelado).
 3. **Ver o material:** grades de quadros por clipe (`fps=1/5,scale=200:-1,tile=10x3`).
 4. **Roteiro** (`roteiro.md`): cenas em ordem cronológica (IMG_xxxx crescente; arquivos de nome longo/remux entram pela fala), fala transcrita, trechos aparados, inserts e pendências. Aprovar.
@@ -94,3 +103,4 @@ Fotos realistas: preferir **Pexels/Unsplash** (licença permite uso comercial e 
 | 4 Viagem misteriosa | destino secreto (Paris), aeroporto e voo | cerca de 7 min | prévia V04 de inserts em papel rasgado entregue; render final pendente de aprovação |
 
 Atualizar esta tabela a cada vídeo concluído.
+
