@@ -1,4 +1,4 @@
 interface:
   display_name: "Vlog da Lara"
-  short_description: "Monta os vlogs da Lara com poucos cortes e inserts em papel rasgado"
-  default_prompt: "Use $vlog-lara para inventariar a pasta do vídeo, transcrever a fala, montar o roteiro, aprovar a prévia dos inserts e renderizar o vídeo final com Remotion."
+  short_description: "Vlogs da Lara: montagem, HDR, trilhas, capas e entrega"
+  default_prompt: "Use $vlog-lara para trabalhar no vídeo da Lara conforme o pedido atual: confira a edição e as aprovações vigentes, diagnostique a captura antes de editar cores, preserve a montagem nas revisões e siga o padrão de inserts, trilhas, capas e entrega verificada."

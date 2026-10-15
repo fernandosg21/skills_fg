@@ -1,6 +1,6 @@
 # Padrões de Remotion dos vlogs da Lara
 
-Base pronta em `assets/remotion-base/` (cópia do projeto do Vídeo 4). Para um vídeo novo: copiar a pasta para `<projeto>/projeto/`, rodar `npm i`, ajustar `normalizar.sh`, `src/scenes.ts` e os inserts em `src/Video.tsx`.
+Base histórica em `assets/remotion-base/` (cópia do Vídeo 4). Antes de reutilizar, diagnosticar a captura de cada original e adaptar a normalização: a base não resolve automaticamente HDR/Log. Conferir também as imagens geradas, o tamanho dos inserts e a autorização atual de trilha. Não executar os caminhos e planos antigos sem adaptação. Para um vídeo novo, copiar a base para `<projeto>/projeto/`, instalar dependências e ajustar `normalizar.sh`, `src/scenes.ts` e `src/Video.tsx` conforme o `SKILL.md`.
 
 ## Arquivos
 
@@ -37,7 +37,8 @@ w = wave.open('clip.wav'); a = np.frombuffer(w.readframes(w.getnframes()), dtype
 def db(t, half=0.05):
     x = a[int((t - half) * 16000):int((t + half) * 16000)]
     return 20 * np.log10(max(1e-5, np.sqrt(np.mean(x ** 2))))
-# fala: -10 a -20 dBFS; pausa: -24 a -30 dBFS (após loudnorm)
+# Exemplos antigos após loudnorm: fala -10 a -20 dBFS; pausa -24 a -30.
+# Não usar esses valores como classificador universal; conferir transcrição e ouvir.
 ```
 
 ## Achar o frame global de um momento
